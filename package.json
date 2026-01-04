@@ -6,7 +6,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "prepare": "npm run build",
+    "prepare": "git config core.hooksPath .githooks 2>/dev/null || true && npm run build",
     "dev": "tsc --watch",
     "test": "echo 'TODO: add tests'",
     "test:stdin": "echo '{\"model\":{\"display_name\":\"Opus 4.5\"},\"context_window\":{\"current_usage\":{\"input_tokens\":45000,\"output_tokens\":5000,\"cache_creation_input_tokens\":1000,\"cache_read_input_tokens\":2000},\"context_window_size\":200000},\"cwd\":\"/tmp\"}' | node dist/index.js"
