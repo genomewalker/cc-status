@@ -13,44 +13,29 @@ Custom statusline for Claude Code with soul integration.
 
 ## Installation
 
-### Via Claude Code Marketplace
-
 ```bash
 /plugin add genomewalker/cc-status
 ```
 
-### Manual
+Then run the setup command:
 
 ```bash
-git clone https://github.com/genomewalker/cc-status.git
-cd cc-status
-npm install
-npm run build
+/cc-status-setup
 ```
 
-## Configuration
+This will:
+- Back up your current statusLine config to `~/.claude/statusline.backup.json`
+- Configure cc-status as your statusLine
 
-After installing, add to `~/.claude/settings.json`:
+Restart Claude Code to see the new statusLine.
 
-```json
-{
-  "statusLine": {
-    "type": "command",
-    "command": "node ~/.claude/plugins/cache/cc-status/cc-status/*/dist/index.js"
-  }
-}
+## Uninstall
+
+```bash
+/cc-status-uninstall
 ```
 
-Or with version pinning:
-
-```json
-{
-  "statusLine": {
-    "type": "command",
-    "command": "bash -c 'node \"$(ls -td ~/.claude/plugins/cache/cc-status/cc-status/*/ | head -1)dist/index.js\"'"
-  }
-}
-```
+This restores only the `statusLine` section from your backup (other settings are untouched).
 
 ## Example Output
 

@@ -8,5 +8,17 @@
   },
   "repository": "https://github.com/genomewalker/cc-status",
   "license": "MIT",
-  "keywords": ["statusline", "hud", "soul", "context", "git"]
+  "keywords": ["statusline", "hud", "soul", "context", "git"],
+  "commands": [
+    {
+      "name": "cc-status-setup",
+      "description": "Configure cc-status as your statusLine (backs up current config)",
+      "command": "bash $PLUGIN_DIR/commands/setup.sh"
+    },
+    {
+      "name": "cc-status-uninstall",
+      "description": "Remove cc-status and restore previous statusLine config",
+      "command": "bash $PLUGIN_DIR/commands/uninstall.sh"
+    }
+  ]
 }
