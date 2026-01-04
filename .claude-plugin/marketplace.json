@@ -1,0 +1,13 @@
+{
+  "name": "genomewalker-cc-status",
+  "owner": {
+    "name": "Antonio Fernandez-Guerra"
+  },
+  "plugins": [
+    {
+      "name": "cc-status",
+      "source": "./",
+      "description": "Custom statusline for Claude Code with soul integration, context tracking, and git info."
+    }
+  ]
+}

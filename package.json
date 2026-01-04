@@ -1,0 +1,24 @@
+{
+  "name": "cc-status",
+  "version": "0.1.0",
+  "description": "Custom statusline for Claude Code with context tracking and git info",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build",
+    "dev": "tsc --watch",
+    "test": "echo 'TODO: add tests'",
+    "test:stdin": "echo '{\"model\":{\"display_name\":\"Opus 4.5\"},\"context_window\":{\"current_usage\":{\"input_tokens\":45000,\"output_tokens\":5000,\"cache_creation_input_tokens\":1000,\"cache_read_input_tokens\":2000},\"context_window_size\":200000},\"cwd\":\"/tmp\"}' | node dist/index.js"
+  },
+  "keywords": ["claude-code", "statusline", "hud"],
+  "author": "Antonio Fernandez-Guerra",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.0.0"
+  }
+}
