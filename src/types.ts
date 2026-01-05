@@ -57,20 +57,19 @@ export interface GitInfo {
 }
 
 export interface SoulContext {
+  version: string;
+  hot: number;
+  warm: number;
+  cold: number;
+  total: number;
   coherence: {
     global: number;
     local: number;
     structural: number;
-    tau_k: number;
     temporal: number;
+    tau: number;
   };
-  statistics: {
-    cold_nodes: number;
-    hot_nodes: number;
-    total_nodes: number;
-    warm_nodes: number;
-  };
-  yantra_ready: boolean;
+  yantra: boolean;
 }
 
 export interface RenderContext {

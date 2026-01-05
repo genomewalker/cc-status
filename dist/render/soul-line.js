@@ -7,15 +7,14 @@ function coherenceColor(value) {
     return red(`${(value * 100).toFixed(0)}%`);
 }
 function formatNodes(soul) {
-    const { hot_nodes, warm_nodes, cold_nodes, total_nodes } = soul.statistics;
     const parts = [];
-    if (hot_nodes > 0)
-        parts.push(`${hot_nodes}h`);
-    if (warm_nodes > 0)
-        parts.push(`${warm_nodes}w`);
-    if (cold_nodes > 0)
-        parts.push(`${cold_nodes}c`);
-    return parts.length > 0 ? parts.join('/') : `${total_nodes}`;
+    if (soul.hot > 0)
+        parts.push(`${soul.hot}h`);
+    if (soul.warm > 0)
+        parts.push(`${soul.warm}w`);
+    if (soul.cold > 0)
+        parts.push(`${soul.cold}c`);
+    return parts.length > 0 ? parts.join('/') : `${soul.total}`;
 }
 export function renderSoulLine(ctx) {
     if (!ctx.soul)
@@ -23,17 +22,13 @@ export function renderSoulLine(ctx) {
     const parts = [];
     // Soul indicator
     parts.push(magenta('◈'));
-    // Coherence (using global as primary)
+    // Coherence (tau as primary)
     const coh = ctx.soul.coherence;
-    parts.push(`${dim('coh:')}${coherenceColor(coh.global)}`);
-    // Tau-k (Kendall correlation)
-    if (coh.tau_k !== undefined) {
-        parts.push(`${dim('τ:')}${coherenceColor(coh.tau_k)}`);
-    }
+    parts.push(`${dim('τ:')}${coherenceColor(coh.tau)}`);
     // Node stats
     parts.push(`${dim('nodes:')}${white(formatNodes(ctx.soul))}`);
     // Yantra status
-    if (!ctx.soul.yantra_ready) {
+    if (!ctx.soul.yantra) {
         parts.push(yellow('yantra?'));
     }
     return parts.join(' ');
