@@ -1,7 +1,7 @@
 {
   "name": "cc-status",
   "description": "Custom statusline for Claude Code with soul integration, context tracking, and git info.",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": {
     "name": "Antonio Fernandez-Guerra",
     "url": "https://github.com/genomewalker"
