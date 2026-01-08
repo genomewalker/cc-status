@@ -24,8 +24,8 @@ if [[ "$CURRENT_STATUSLINE" != "null" ]]; then
     echo "Backed up current statusLine to: $BACKUP_FILE"
 fi
 
-# Build the statusLine command
-STATUSLINE_CMD="node \"\$(ls -td ~/.claude/plugins/cache/${PLUGIN_DIR}/*/ 2>/dev/null | head -1)dist/index.js\""
+# Build the statusLine command (use sort -V for proper version ordering)
+STATUSLINE_CMD="node ~/.claude/plugins/cache/${PLUGIN_DIR}/\"\$(ls ~/.claude/plugins/cache/${PLUGIN_DIR}/ 2>/dev/null | sort -V -r | head -1)\"/dist/index.js"
 
 # Update settings.json with cc-status
 jq --arg cmd "$STATUSLINE_CMD" '.statusLine = {
