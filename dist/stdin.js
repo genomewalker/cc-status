@@ -26,7 +26,6 @@ export function getContextStats(stdin) {
     const size = stdin.context_window?.context_window_size ?? 200000;
     const tokens = (usage?.input_tokens ?? 0) +
         (usage?.output_tokens ?? 0) +
-        (usage?.cache_creation_input_tokens ?? 0) +
         (usage?.cache_read_input_tokens ?? 0);
     const percent = Math.min(100, Math.round((tokens / size) * 100));
     const remaining = Math.max(0, 100 - percent);

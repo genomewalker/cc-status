@@ -37,7 +37,6 @@ export function getContextStats(stdin: StdinData): {
   const tokens =
     (usage?.input_tokens ?? 0) +
     (usage?.output_tokens ?? 0) +
-    (usage?.cache_creation_input_tokens ?? 0) +
     (usage?.cache_read_input_tokens ?? 0);
 
   const percent = Math.min(100, Math.round((tokens / size) * 100));
