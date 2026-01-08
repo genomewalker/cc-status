@@ -25,6 +25,9 @@ export async function main() {
             console.log('[cc-status] Initializing...');
             return;
         }
+        if (process.env.CC_STATUS_DEBUG) {
+            console.error(`[cc-status debug] full stdin keys: ${Object.keys(stdin).join(', ')}`);
+        }
         const transcriptPath = stdin.transcript_path ?? '';
         const transcript = await parseTranscript(transcriptPath);
         const configs = countConfigs(stdin.cwd);

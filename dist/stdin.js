@@ -29,6 +29,12 @@ export function getContextStats(stdin) {
         (usage?.cache_read_input_tokens ?? 0);
     const percent = Math.min(100, Math.round((tokens / size) * 100));
     const remaining = Math.max(0, 100 - percent);
+    if (process.env.CC_STATUS_DEBUG) {
+        const cw = stdin.context_window;
+        console.error(`[cc-status debug] current_usage: input=${usage?.input_tokens} output=${usage?.output_tokens} cache_read=${usage?.cache_read_input_tokens} cache_create=${usage?.cache_creation_input_tokens}`);
+        console.error(`[cc-status debug] totals: total_input=${cw?.total_input_tokens} total_output=${cw?.total_output_tokens}`);
+        console.error(`[cc-status debug] calculated: ${tokens}/${size} = ${percent}%`);
+    }
     return { tokens, size, percent, remaining };
 }
 //# sourceMappingURL=stdin.js.map

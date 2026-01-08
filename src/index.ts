@@ -30,6 +30,10 @@ export async function main(): Promise<void> {
       return;
     }
 
+    if (process.env.CC_STATUS_DEBUG) {
+      console.error(`[cc-status debug] full stdin keys: ${Object.keys(stdin).join(', ')}`);
+    }
+
     const transcriptPath = stdin.transcript_path ?? '';
     const transcript = await parseTranscript(transcriptPath);
     const configs = countConfigs(stdin.cwd);
