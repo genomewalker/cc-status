@@ -15,11 +15,11 @@ function formatWithUnits(n: number): string {
 }
 
 function formatNodes(soul: SoulContext): string {
-  const parts: string[] = [];
-  if (soul.hot > 0) parts.push(red(formatWithUnits(soul.hot)));
-  if (soul.warm > 0) parts.push(orange(formatWithUnits(soul.warm)));
-  if (soul.cold > 0) parts.push(blue(formatWithUnits(soul.cold)));
-  return parts.length > 0 ? parts.join(dim('/')) : white(formatWithUnits(soul.total));
+  return [
+    red(formatWithUnits(soul.hot)),
+    orange(formatWithUnits(soul.warm)),
+    blue(formatWithUnits(soul.cold)),
+  ].join(dim('/'));
 }
 
 export function renderSoulLine(ctx: RenderContext): string | null {
