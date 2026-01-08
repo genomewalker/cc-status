@@ -7,12 +7,19 @@ function coherenceColor(value: number): string {
   return red(`${(value * 100).toFixed(0)}%`);
 }
 
+function formatWithUnits(n: number): string {
+  if (n >= 1_000_000_000) return `${(n / 1_000_000_000).toFixed(1)}G`;
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+  return `${n}`;
+}
+
 function formatNodes(soul: SoulContext): string {
   const parts: string[] = [];
-  if (soul.hot > 0) parts.push(`${soul.hot}h`);
-  if (soul.warm > 0) parts.push(`${soul.warm}w`);
-  if (soul.cold > 0) parts.push(`${soul.cold}c`);
-  return parts.length > 0 ? parts.join('/') : `${soul.total}`;
+  if (soul.hot > 0) parts.push(`${formatWithUnits(soul.hot)}h`);
+  if (soul.warm > 0) parts.push(`${formatWithUnits(soul.warm)}w`);
+  if (soul.cold > 0) parts.push(`${formatWithUnits(soul.cold)}c`);
+  return parts.length > 0 ? parts.join('/') : formatWithUnits(soul.total);
 }
 
 export function renderSoulLine(ctx: RenderContext): string | null {
@@ -20,15 +27,17 @@ export function renderSoulLine(ctx: RenderContext): string | null {
 
   const parts: string[] = [];
 
-  // Soul indicator
+  // Soul indicator with version
   parts.push(magenta('◈'));
+  parts.push(dim(`v${ctx.soul.version}`));
 
   // Coherence (tau as primary)
   const coh = ctx.soul.coherence;
   parts.push(`${dim('τ:')}${coherenceColor(coh.tau)}`);
 
-  // Node stats
-  parts.push(`${dim('nodes:')}${white(formatNodes(ctx.soul))}`);
+  // Node stats with total
+  const total = formatWithUnits(ctx.soul.total);
+  parts.push(`${dim('nodes:')}${white(total)} ${dim('(')}${formatNodes(ctx.soul)}${dim(')')}`);
 
   // Yantra status
   if (!ctx.soul.yantra) {
