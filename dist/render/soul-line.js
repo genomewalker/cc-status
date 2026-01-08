@@ -1,4 +1,4 @@
-import { dim, magenta, green, yellow, red, white } from '../colors.js';
+import { dim, magenta, green, yellow, red, orange, blue, white } from '../colors.js';
 function coherenceColor(value) {
     if (value >= 0.8)
         return green(`${(value * 100).toFixed(0)}%`);
@@ -18,12 +18,12 @@ function formatWithUnits(n) {
 function formatNodes(soul) {
     const parts = [];
     if (soul.hot > 0)
-        parts.push(`${formatWithUnits(soul.hot)}h`);
+        parts.push(red(formatWithUnits(soul.hot)));
     if (soul.warm > 0)
-        parts.push(`${formatWithUnits(soul.warm)}w`);
+        parts.push(orange(formatWithUnits(soul.warm)));
     if (soul.cold > 0)
-        parts.push(`${formatWithUnits(soul.cold)}c`);
-    return parts.length > 0 ? parts.join('/') : formatWithUnits(soul.total);
+        parts.push(blue(formatWithUnits(soul.cold)));
+    return parts.length > 0 ? parts.join(dim('/')) : white(formatWithUnits(soul.total));
 }
 export function renderSoulLine(ctx) {
     if (!ctx.soul)

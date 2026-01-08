@@ -6,6 +6,8 @@ export declare const YELLOW = "\u001B[38;5;186m";
 export declare const RED = "\u001B[38;5;174m";
 export declare const CYAN = "\u001B[38;5;80m";
 export declare const MAGENTA = "\u001B[38;5;176m";
+export declare const ORANGE = "\u001B[38;5;214m";
+export declare const BLUE = "\u001B[38;5;111m";
 export declare const dim: (s: string) => string;
 export declare const white: (s: string) => string;
 export declare const green: (s: string) => string;
@@ -13,5 +15,7 @@ export declare const yellow: (s: string) => string;
 export declare const red: (s: string) => string;
 export declare const cyan: (s: string) => string;
 export declare const magenta: (s: string) => string;
+export declare const orange: (s: string) => string;
+export declare const blue: (s: string) => string;
 export declare function getContextColor(remaining: number): string;
 //# sourceMappingURL=colors.d.ts.map

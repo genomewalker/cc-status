@@ -1,5 +1,5 @@
 import type { RenderContext, SoulContext } from '../types.js';
-import { dim, magenta, green, yellow, red, white } from '../colors.js';
+import { dim, magenta, green, yellow, red, orange, blue, white } from '../colors.js';
 
 function coherenceColor(value: number): string {
   if (value >= 0.8) return green(`${(value * 100).toFixed(0)}%`);
@@ -16,10 +16,10 @@ function formatWithUnits(n: number): string {
 
 function formatNodes(soul: SoulContext): string {
   const parts: string[] = [];
-  if (soul.hot > 0) parts.push(`${formatWithUnits(soul.hot)}h`);
-  if (soul.warm > 0) parts.push(`${formatWithUnits(soul.warm)}w`);
-  if (soul.cold > 0) parts.push(`${formatWithUnits(soul.cold)}c`);
-  return parts.length > 0 ? parts.join('/') : formatWithUnits(soul.total);
+  if (soul.hot > 0) parts.push(red(formatWithUnits(soul.hot)));
+  if (soul.warm > 0) parts.push(orange(formatWithUnits(soul.warm)));
+  if (soul.cold > 0) parts.push(blue(formatWithUnits(soul.cold)));
+  return parts.length > 0 ? parts.join(dim('/')) : white(formatWithUnits(soul.total));
 }
 
 export function renderSoulLine(ctx: RenderContext): string | null {
