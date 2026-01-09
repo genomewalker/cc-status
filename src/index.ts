@@ -3,7 +3,7 @@ import { readStdin } from './stdin.js';
 import { parseTranscript } from './transcript.js';
 import { countConfigs } from './configs.js';
 import { getGitInfo } from './git.js';
-import { getSoulContext } from './soul.js';
+import { getSoulContextAsync } from './soul.js';
 import { render } from './render/index.js';
 import type { RenderContext } from './types.js';
 
@@ -38,7 +38,7 @@ export async function main(): Promise<void> {
     const transcript = await parseTranscript(transcriptPath);
     const configs = countConfigs(stdin.cwd);
     const git = getGitInfo();
-    const soul = getSoulContext();
+    const soul = await getSoulContextAsync();
     const sessionDuration = formatSessionDuration(transcript.sessionStart);
 
     const ctx: RenderContext = {

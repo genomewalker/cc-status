@@ -3,7 +3,7 @@ import { readStdin } from './stdin.js';
 import { parseTranscript } from './transcript.js';
 import { countConfigs } from './configs.js';
 import { getGitInfo } from './git.js';
-import { getSoulContext } from './soul.js';
+import { getSoulContextAsync } from './soul.js';
 import { render } from './render/index.js';
 export function formatSessionDuration(sessionStart, now = () => Date.now()) {
     if (!sessionStart)
@@ -32,7 +32,7 @@ export async function main() {
         const transcript = await parseTranscript(transcriptPath);
         const configs = countConfigs(stdin.cwd);
         const git = getGitInfo();
-        const soul = getSoulContext();
+        const soul = await getSoulContextAsync();
         const sessionDuration = formatSessionDuration(transcript.sessionStart);
         const ctx = {
             stdin,
