@@ -1,6 +1,6 @@
 {
   "name": "cc-status",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Custom statusline for Claude Code with context tracking and git info",
   "type": "module",
   "main": "dist/index.js",

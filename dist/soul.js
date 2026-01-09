@@ -3,8 +3,34 @@ import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
 import * as net from 'net';
-const SOCKET_PATH = '/tmp/chitta.sock';
 const SOCKET_TIMEOUT = 500; // ms - fast timeout for statusline
+// Find versioned socket path dynamically
+function findSocketPath() {
+    try {
+        // Look for versioned sockets (e.g., /tmp/chitta-2.32.0.sock)
+        const files = fs.readdirSync('/tmp');
+        const sockets = files
+            .filter((f) => f.startsWith('chitta-') && f.endsWith('.sock'))
+            .map((f) => `/tmp/${f}`);
+        if (sockets.length > 0) {
+            // Sort by version descending (newest first)
+            sockets.sort((a, b) => {
+                const vA = a.match(/chitta-(\d+\.\d+\.\d+)\.sock/)?.[1] || '0.0.0';
+                const vB = b.match(/chitta-(\d+\.\d+\.\d+)\.sock/)?.[1] || '0.0.0';
+                return vB.localeCompare(vA, undefined, { numeric: true });
+            });
+            return sockets[0];
+        }
+    }
+    catch {
+        // /tmp not readable, fall through
+    }
+    // Fall back to legacy socket
+    if (fs.existsSync('/tmp/chitta.sock')) {
+        return '/tmp/chitta.sock';
+    }
+    return null;
+}
 // cc-soul plugin CLI locations (in order of preference)
 const CLI_PATHS = [
     path.join(os.homedir(), '.claude/plugins/marketplaces/genomewalker-cc-soul/bin/chitta_cli'),
@@ -20,11 +46,12 @@ function getChittaCli() {
 // Fast path: query daemon via Unix socket
 function getSoulContextFromSocket() {
     return new Promise((resolve) => {
-        if (!fs.existsSync(SOCKET_PATH)) {
+        const socketPath = findSocketPath();
+        if (!socketPath) {
             resolve(undefined);
             return;
         }
-        const client = net.createConnection(SOCKET_PATH);
+        const client = net.createConnection(socketPath);
         let data = '';
         let resolved = false;
         const cleanup = () => {
@@ -83,7 +110,8 @@ export async function getSoulContextAsync() {
 // Sync wrapper for backward compatibility
 export function getSoulContext() {
     // Check if socket exists - if so, caller should use async version
-    if (fs.existsSync(SOCKET_PATH)) {
+    const socketPath = findSocketPath();
+    if (socketPath) {
         // For sync callers when daemon is running, we still try CLI
         // The async path is preferred
         return getSoulContextFromCli();
