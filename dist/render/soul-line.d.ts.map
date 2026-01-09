@@ -1,1 +1,1 @@
-{"version":3,"file":"soul-line.d.ts","sourceRoot":"","sources":["../../src/render/soul-line.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,aAAa,EAAe,MAAM,aAAa,CAAC;AAwB9D,wBAAgB,cAAc,CAAC,GAAG,EAAE,aAAa,GAAG,MAAM,GAAG,IAAI,CAuBhE"}
+{"version":3,"file":"soul-line.d.ts","sourceRoot":"","sources":["../../src/render/soul-line.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,aAAa,EAAe,MAAM,aAAa,CAAC;AAkC9D,wBAAgB,cAAc,CAAC,GAAG,EAAE,aAAa,GAAG,MAAM,GAAG,IAAI,CA6BhE"}

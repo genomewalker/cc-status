@@ -1,10 +1,19 @@
 import { dim, magenta, green, yellow, red, orange, blue, white } from '../colors.js';
-function coherenceColor(value) {
+function metricColor(value) {
     if (value >= 0.8)
         return green(`${(value * 100).toFixed(0)}%`);
     if (value >= 0.5)
         return yellow(`${(value * 100).toFixed(0)}%`);
     return red(`${(value * 100).toFixed(0)}%`);
+}
+function statusColor(status) {
+    switch (status) {
+        case 'healthy': return green('●');
+        case 'degraded': return yellow('◐');
+        case 'repair_needed': return orange('◑');
+        case 'critical': return red('○');
+        default: return dim('?');
+    }
 }
 function formatWithUnits(n) {
     if (n >= 1_000_000_000)
@@ -29,9 +38,14 @@ export function renderSoulLine(ctx) {
     // Soul indicator with version
     parts.push(magenta('◈'));
     parts.push(dim(`v${ctx.soul.version}`));
-    // Coherence (tau as primary)
+    // Sāmarasya (coherence) - τ
     const coh = ctx.soul.coherence;
-    parts.push(`${dim('τ:')}${coherenceColor(coh.tau)}`);
+    parts.push(`${dim('τ:')}${metricColor(coh.tau)}`);
+    // Ojas (vitality) - ψ with status indicator
+    if (ctx.soul.ojas) {
+        const ojas = ctx.soul.ojas;
+        parts.push(`${dim('ψ:')}${metricColor(ojas.psi)}${statusColor(ojas.status)}`);
+    }
     // Node stats with total
     const total = formatWithUnits(ctx.soul.total);
     parts.push(`${dim('nodes:')}${white(total)} ${dim('(')}${formatNodes(ctx.soul)}${dim(')')}`);

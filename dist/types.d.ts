@@ -64,6 +64,14 @@ export interface SoulContext {
         temporal: number;
         tau: number;
     };
+    ojas?: {
+        structural: number;
+        semantic: number;
+        temporal: number;
+        capacity: number;
+        psi: number;
+        status: 'healthy' | 'degraded' | 'repair_needed' | 'critical';
+    };
     yantra: boolean;
 }
 export interface RenderContext {
