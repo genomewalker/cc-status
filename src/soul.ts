@@ -22,13 +22,13 @@ export function getSoulContext(): SoulContext | undefined {
   if (!cli) return undefined;
 
   try {
-    const output = execSync(`"${cli}" stats --json 2>/dev/null`, {
+    const output = execSync(`"${cli}" stats --json --fast 2>/dev/null`, {
       encoding: 'utf8',
-      timeout: 2000,
+      timeout: 5000,
     });
     return JSON.parse(output.trim());
   } catch {
-    // Soul not available or old CLI without --json
+    // Soul not available or old CLI without --json/--fast
   }
   return undefined;
 }
