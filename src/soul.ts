@@ -7,17 +7,21 @@ import type { SoulContext } from './types.js';
 
 const SOCKET_TIMEOUT = 500; // ms - fast timeout for statusline
 
-// Find versioned socket path dynamically
+// Find socket path (standard path first, legacy versioned sockets as fallback)
 function findSocketPath(): string | null {
+  // Standard socket path (v2.38.0+)
+  if (fs.existsSync('/tmp/chitta.sock')) {
+    return '/tmp/chitta.sock';
+  }
+
+  // Legacy: versioned sockets (e.g., /tmp/chitta-2.32.0.sock)
   try {
-    // Look for versioned sockets (e.g., /tmp/chitta-2.32.0.sock)
     const files = fs.readdirSync('/tmp');
     const sockets = files
       .filter((f: string) => f.startsWith('chitta-') && f.endsWith('.sock'))
       .map((f: string) => `/tmp/${f}`);
 
     if (sockets.length > 0) {
-      // Sort by version descending (newest first)
       sockets.sort((a: string, b: string) => {
         const vA = a.match(/chitta-(\d+\.\d+\.\d+)\.sock/)?.[1] || '0.0.0';
         const vB = b.match(/chitta-(\d+\.\d+\.\d+)\.sock/)?.[1] || '0.0.0';
@@ -26,18 +30,15 @@ function findSocketPath(): string | null {
       return sockets[0];
     }
   } catch {
-    // /tmp not readable, fall through
+    // /tmp not readable
   }
 
-  // Fall back to legacy socket
-  if (fs.existsSync('/tmp/chitta.sock')) {
-    return '/tmp/chitta.sock';
-  }
   return null;
 }
 
-// cc-soul plugin CLI locations (in order of preference)
+// cc-soul CLI locations (in order of preference)
 const CLI_PATHS = [
+  path.join(os.homedir(), '.claude/bin/chitta_cli'),  // Stable symlink (v2.38.0+)
   path.join(os.homedir(), '.claude/plugins/marketplaces/genomewalker-cc-soul/bin/chitta_cli'),
   path.join(os.homedir(), '.claude/mind/chitta-cli.sh'), // Legacy
 ];
