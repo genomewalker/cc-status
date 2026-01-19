@@ -7,30 +7,32 @@ import type { SoulContext } from './types.js';
 
 const SOCKET_TIMEOUT = 500; // ms - fast timeout for statusline
 
-// Find socket path (standard path first, legacy versioned sockets as fallback)
-function findSocketPath(): string | null {
-  // Standard socket path (v2.38.0+)
-  if (fs.existsSync('/tmp/chitta.sock')) {
-    return '/tmp/chitta.sock';
+// DJB2 hash - must match cc-soul's implementation
+function djb2Hash(str: string): number {
+  let hash = 5381;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) + hash + str.charCodeAt(i)) >>> 0;
   }
+  return hash;
+}
 
-  // Legacy: versioned sockets (e.g., /tmp/chitta-2.32.0.sock)
-  try {
-    const files = fs.readdirSync('/tmp');
-    const sockets = files
-      .filter((f: string) => f.startsWith('chitta-') && f.endsWith('.sock'))
-      .map((f: string) => `/tmp/${f}`);
+// Get mind path (same logic as cc-soul)
+function getMindPath(): string {
+  return process.env.CHITTA_DB_PATH || path.join(os.homedir(), '.claude/mind/chitta');
+}
 
-    if (sockets.length > 0) {
-      sockets.sort((a: string, b: string) => {
-        const vA = a.match(/chitta-(\d+\.\d+\.\d+)\.sock/)?.[1] || '0.0.0';
-        const vB = b.match(/chitta-(\d+\.\d+\.\d+)\.sock/)?.[1] || '0.0.0';
-        return vB.localeCompare(vA, undefined, { numeric: true });
-      });
-      return sockets[0];
-    }
-  } catch {
-    // /tmp not readable
+// Derive socket path from mind path (same as cc-soul)
+function socketPathForMind(mindPath: string): string {
+  return `/tmp/chitta-${djb2Hash(mindPath)}.sock`;
+}
+
+// Find socket path for current mind
+function findSocketPath(): string | null {
+  const mindPath = getMindPath();
+  const socketPath = socketPathForMind(mindPath);
+
+  if (fs.existsSync(socketPath)) {
+    return socketPath;
   }
 
   return null;
