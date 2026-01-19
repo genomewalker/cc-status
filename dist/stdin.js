@@ -21,6 +21,20 @@ export async function readStdin() {
 export function getModelName(stdin) {
     return stdin.model?.display_name ?? stdin.model?.id ?? '...';
 }
+// Detect if stdin looks like subagent data
+export function isSubagentContext(stdin) {
+    const model = (stdin.model?.display_name ?? stdin.model?.id ?? '').toLowerCase();
+    const usage = stdin.context_window?.current_usage;
+    const tokens = (usage?.input_tokens ?? 0) + (usage?.output_tokens ?? 0);
+    // Haiku model is commonly used for subagents
+    if (model.includes('haiku'))
+        return true;
+    // Very low token count with no cache suggests fresh subagent
+    const cacheTokens = usage?.cache_read_input_tokens ?? 0;
+    if (tokens < 5000 && cacheTokens === 0)
+        return true;
+    return false;
+}
 export function getContextStats(stdin) {
     const usage = stdin.context_window?.current_usage;
     const size = stdin.context_window?.context_window_size ?? 200000;

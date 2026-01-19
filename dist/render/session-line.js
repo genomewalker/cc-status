@@ -1,8 +1,9 @@
-import { getModelName, getContextStats } from '../stdin.js';
+import { getModelName, getContextStats, isSubagentContext } from '../stdin.js';
 import { renderContextBar } from './context-bar.js';
-import { dim, white, cyan, red, RESET, DIM } from '../colors.js';
+import { dim, white, cyan, red, yellow, RESET, DIM } from '../colors.js';
 export function renderSessionLine(ctx) {
     const parts = [];
+    const isSubagent = isSubagentContext(ctx.stdin);
     // Repo:branch
     if (ctx.git) {
         parts.push(`${white(ctx.git.repo)}${DIM}:${RESET}${white(ctx.git.branch)}`);
@@ -10,9 +11,14 @@ export function renderSessionLine(ctx) {
     else {
         parts.push(dim('~'));
     }
-    // Model
+    // Model (with subagent indicator)
     const model = getModelName(ctx.stdin);
-    parts.push(cyan(`[${model}]`));
+    if (isSubagent) {
+        parts.push(yellow(`[${model}*]`));
+    }
+    else {
+        parts.push(cyan(`[${model}]`));
+    }
     // Duration
     if (ctx.sessionDuration) {
         parts.push(white(ctx.sessionDuration));
