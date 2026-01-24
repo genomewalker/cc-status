@@ -52,6 +52,7 @@ export interface GitInfo {
     deleted: number;
 }
 export interface SoulContext {
+    version: string;
     total_nodes: number;
     active_nodes: number;
     stale_nodes: number;

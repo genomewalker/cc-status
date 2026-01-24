@@ -27,15 +27,18 @@ export function renderSoulLine(ctx) {
     if (!ctx.soul)
         return null;
     const parts = [];
-    // Soul indicator with status
+    // Soul indicator with version
     parts.push(magenta('◈'));
+    if (ctx.soul.version) {
+        parts.push(dim(`v${ctx.soul.version}`));
+    }
     parts.push(statusIcon(ctx.soul.status));
-    // Confidence
-    parts.push(`${dim('conf:')}${confidenceColor(ctx.soul.avg_confidence)}`);
     // Node count
-    parts.push(`${dim('nodes:')}${white(formatWithUnits(ctx.soul.total_nodes))}`);
+    parts.push(`${dim('n:')}${white(formatWithUnits(ctx.soul.total_nodes))}`);
     // Triplets
-    parts.push(`${dim('triplets:')}${white(formatWithUnits(ctx.soul.triplet_count))}`);
+    parts.push(`${dim('t:')}${white(formatWithUnits(ctx.soul.triplet_count))}`);
+    // Confidence
+    parts.push(`${dim('c:')}${confidenceColor(ctx.soul.avg_confidence)}`);
     // Yantra status
     if (!ctx.soul.yantra_ready) {
         parts.push(yellow('yantra?'));

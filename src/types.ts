@@ -60,6 +60,7 @@ export interface GitInfo {
 
 export interface SoulContext {
   // cc-soul v3.x format
+  version: string;
   total_nodes: number;
   active_nodes: number;
   stale_nodes: number;
