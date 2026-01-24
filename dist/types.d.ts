@@ -70,5 +70,8 @@ export interface RenderContext {
     git?: GitInfo;
     soul?: SoulContext;
     sessionDuration: string;
+    contextStdin: StdinData;
+    isSubagent: boolean;
+    usingCachedContext: boolean;
 }
 //# sourceMappingURL=types.d.ts.map

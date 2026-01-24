@@ -1,4 +1,10 @@
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 import type { StdinData } from './types.js';
+
+const CACHE_FILE = path.join(os.tmpdir(), 'cc-status-main-context.json');
+const CACHE_MAX_AGE_MS = 30 * 60 * 1000; // 30 minutes
 
 export async function readStdin(): Promise<StdinData | null> {
   if (process.stdin.isTTY) {
@@ -39,6 +45,38 @@ export function isSubagentContext(stdin: StdinData): boolean {
   if (tokens < 5000 && cacheTokens === 0) return true;
 
   return false;
+}
+
+// Cache main session context for use when subagent is active
+export function cacheMainContext(stdin: StdinData): void {
+  try {
+    const data = {
+      timestamp: Date.now(),
+      stdin,
+    };
+    fs.writeFileSync(CACHE_FILE, JSON.stringify(data), 'utf8');
+  } catch {
+    // Ignore cache write errors
+  }
+}
+
+// Get cached main session context
+export function getCachedMainContext(): StdinData | null {
+  try {
+    if (!fs.existsSync(CACHE_FILE)) return null;
+
+    const raw = fs.readFileSync(CACHE_FILE, 'utf8');
+    const data = JSON.parse(raw);
+
+    // Check if cache is too old
+    if (Date.now() - data.timestamp > CACHE_MAX_AGE_MS) {
+      return null;
+    }
+
+    return data.stdin as StdinData;
+  } catch {
+    return null;
+  }
 }
 
 export function getContextStats(stdin: StdinData): {

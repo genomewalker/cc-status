@@ -79,4 +79,8 @@ export interface RenderContext {
   git?: GitInfo;
   soul?: SoulContext;
   sessionDuration: string;
+  // Context bar data (may be from cache when subagent active)
+  contextStdin: StdinData;
+  isSubagent: boolean;
+  usingCachedContext: boolean;
 }

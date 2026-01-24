@@ -1,6 +1,6 @@
-import { getModelName, getContextStats, isSubagentContext } from '../stdin.js';
+import { getModelName, getContextStats } from '../stdin.js';
 import { renderContextBar } from './context-bar.js';
-import { dim, white, cyan, red, yellow, RESET, DIM } from '../colors.js';
+import { dim, white, cyan, red, yellow, magenta, RESET, DIM } from '../colors.js';
 function formatK(n) {
     if (n >= 1_000_000)
         return `${(n / 1_000_000).toFixed(1)}M`;
@@ -10,7 +10,6 @@ function formatK(n) {
 }
 export function renderSessionLine(ctx) {
     const parts = [];
-    const isSubagent = isSubagentContext(ctx.stdin);
     // Repo:branch
     if (ctx.git) {
         parts.push(`${white(ctx.git.repo)}${DIM}:${RESET}${white(ctx.git.branch)}`);
@@ -20,8 +19,8 @@ export function renderSessionLine(ctx) {
     }
     // Model (with subagent indicator)
     const model = getModelName(ctx.stdin);
-    if (isSubagent) {
-        parts.push(yellow(`[${model}*]`));
+    if (ctx.isSubagent) {
+        parts.push(yellow(`[${model}▸]`));
     }
     else {
         parts.push(cyan(`[${model}]`));
@@ -34,13 +33,14 @@ export function renderSessionLine(ctx) {
     if (ctx.git && (ctx.git.added > 0 || ctx.git.deleted > 0)) {
         parts.push(dim(`+${ctx.git.added}/-${ctx.git.deleted}`));
     }
-    // Context bar with token counts
-    const stats = getContextStats(ctx.stdin);
-    const cw = ctx.stdin.context_window;
+    // Context bar with token counts (uses main session context even during subagent)
+    const stats = getContextStats(ctx.contextStdin);
+    const cw = ctx.contextStdin.context_window;
     const inTok = cw?.total_input_tokens ?? 0;
     const outTok = cw?.total_output_tokens ?? 0;
     const tokStr = `${formatK(inTok)}↓${formatK(outTok)}↑`;
-    parts.push(`${renderContextBar(stats.percent, stats.remaining)} ${dim(tokStr)}`);
+    const cacheIndicator = ctx.usingCachedContext ? magenta('◂') : '';
+    parts.push(`${cacheIndicator}${renderContextBar(stats.percent, stats.remaining)} ${dim(tokStr)}`);
     // Config counts
     const extras = [];
     if (ctx.configs.claudeMdCount > 0) {

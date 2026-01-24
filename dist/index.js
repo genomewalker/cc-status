@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { readStdin } from './stdin.js';
+import { readStdin, isSubagentContext, cacheMainContext, getCachedMainContext } from './stdin.js';
 import { parseTranscript } from './transcript.js';
 import { countConfigs } from './configs.js';
 import { getGitInfo } from './git.js';
@@ -34,6 +34,22 @@ export async function main() {
         const git = getGitInfo();
         const soul = await getSoulContextAsync();
         const sessionDuration = formatSessionDuration(transcript.sessionStart);
+        // Determine if this is subagent context and handle caching
+        const isSubagent = isSubagentContext(stdin);
+        let contextStdin = stdin;
+        let usingCachedContext = false;
+        if (isSubagent) {
+            // Try to use cached main session context for the context bar
+            const cached = getCachedMainContext();
+            if (cached) {
+                contextStdin = cached;
+                usingCachedContext = true;
+            }
+        }
+        else {
+            // Cache main session context for later use
+            cacheMainContext(stdin);
+        }
         const ctx = {
             stdin,
             transcript,
@@ -41,6 +57,9 @@ export async function main() {
             git,
             soul,
             sessionDuration,
+            contextStdin,
+            isSubagent,
+            usingCachedContext,
         };
         render(ctx);
     }
