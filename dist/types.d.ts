@@ -52,27 +52,14 @@ export interface GitInfo {
     deleted: number;
 }
 export interface SoulContext {
-    version: string;
-    hot: number;
-    warm: number;
-    cold: number;
-    total: number;
-    coherence: {
-        global: number;
-        local: number;
-        structural: number;
-        temporal: number;
-        tau: number;
-    };
-    ojas?: {
-        structural: number;
-        semantic: number;
-        temporal: number;
-        capacity: number;
-        psi: number;
-        status: 'healthy' | 'degraded' | 'repair_needed' | 'critical';
-    };
-    yantra: boolean;
+    total_nodes: number;
+    active_nodes: number;
+    stale_nodes: number;
+    weak_nodes: number;
+    avg_confidence: number;
+    triplet_count: number;
+    yantra_ready: boolean;
+    status: 'healthy' | 'degraded' | 'repair_needed' | 'critical';
 }
 export interface RenderContext {
     stdin: StdinData;

@@ -1,4 +1,3 @@
-import { execSync } from 'child_process';
 import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
@@ -29,20 +28,7 @@ function findSocketPath() {
     }
     return null;
 }
-// cc-soul CLI locations (in order of preference)
-const CLI_PATHS = [
-    path.join(os.homedir(), '.claude/bin/chitta_cli'), // Stable symlink (v2.38.0+)
-    path.join(os.homedir(), '.claude/plugins/marketplaces/genomewalker-cc-soul/bin/chitta_cli'),
-    path.join(os.homedir(), '.claude/mind/chitta-cli.sh'), // Legacy
-];
-function getChittaCli() {
-    for (const p of CLI_PATHS) {
-        if (fs.existsSync(p))
-            return p;
-    }
-    return null;
-}
-// Fast path: query daemon via Unix socket
+// Fast path: query daemon via Unix socket (JSON-RPC protocol)
 function getSoulContextFromSocket() {
     return new Promise((resolve) => {
         const socketPath = findSocketPath();
@@ -62,7 +48,14 @@ function getSoulContextFromSocket() {
         };
         const timeout = setTimeout(cleanup, SOCKET_TIMEOUT);
         client.on('connect', () => {
-            client.write('stats\n');
+            // JSON-RPC request for soul_context tool
+            const request = JSON.stringify({
+                jsonrpc: '2.0',
+                id: 1,
+                method: 'tools/call',
+                params: { name: 'soul_context', arguments: {} }
+            });
+            client.write(request + '\n');
         });
         client.on('data', (chunk) => {
             data += chunk.toString();
@@ -71,7 +64,14 @@ function getSoulContextFromSocket() {
                 resolved = true;
                 client.destroy();
                 try {
-                    resolve(JSON.parse(data.trim()));
+                    const response = JSON.parse(data.trim());
+                    // Extract structured data from JSON-RPC response
+                    if (response.result?.content?.[0]?.data) {
+                        resolve(response.result.content[0].data);
+                    }
+                    else {
+                        resolve(undefined);
+                    }
                 }
                 catch {
                     resolve(undefined);
@@ -82,39 +82,13 @@ function getSoulContextFromSocket() {
         client.on('close', cleanup);
     });
 }
-// Slow path: spawn CLI (fallback when daemon not running)
-function getSoulContextFromCli() {
-    const cli = getChittaCli();
-    if (!cli)
-        return undefined;
-    try {
-        const output = execSync(`"${cli}" stats --json --fast 2>/dev/null`, {
-            encoding: 'utf8',
-            timeout: 5000,
-        });
-        return JSON.parse(output.trim());
-    }
-    catch {
-        // Soul not available or old CLI without --json/--fast
-    }
-    return undefined;
-}
 export async function getSoulContextAsync() {
-    // Try socket first (fast), fall back to CLI (slow)
-    const fromSocket = await getSoulContextFromSocket();
-    if (fromSocket)
-        return fromSocket;
-    return getSoulContextFromCli();
+    return getSoulContextFromSocket();
 }
-// Sync wrapper for backward compatibility
+// Sync wrapper - daemon only, no CLI fallback
 export function getSoulContext() {
-    // Check if socket exists - if so, caller should use async version
-    const socketPath = findSocketPath();
-    if (socketPath) {
-        // For sync callers when daemon is running, we still try CLI
-        // The async path is preferred
-        return getSoulContextFromCli();
-    }
-    return getSoulContextFromCli();
+    // Sync callers should use async version
+    // Return undefined - daemon handles everything
+    return undefined;
 }
 //# sourceMappingURL=soul.js.map

@@ -3,6 +3,12 @@ import { getModelName, getContextStats, isSubagentContext } from '../stdin.js';
 import { renderContextBar } from './context-bar.js';
 import { dim, white, cyan, red, yellow, RESET, DIM, getContextColor } from '../colors.js';
 
+function formatK(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K`;
+  return `${n}`;
+}
+
 export function renderSessionLine(ctx: RenderContext): string {
   const parts: string[] = [];
   const isSubagent = isSubagentContext(ctx.stdin);
@@ -32,9 +38,13 @@ export function renderSessionLine(ctx: RenderContext): string {
     parts.push(dim(`+${ctx.git.added}/-${ctx.git.deleted}`));
   }
 
-  // Context bar
+  // Context bar with token counts
   const stats = getContextStats(ctx.stdin);
-  parts.push(renderContextBar(stats.percent, stats.remaining));
+  const cw = ctx.stdin.context_window;
+  const inTok = cw?.total_input_tokens ?? 0;
+  const outTok = cw?.total_output_tokens ?? 0;
+  const tokStr = `${formatK(inTok)}↓${formatK(outTok)}↑`;
+  parts.push(`${renderContextBar(stats.percent, stats.remaining)} ${dim(tokStr)}`);
 
   // Config counts
   const extras: string[] = [];

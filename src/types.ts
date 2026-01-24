@@ -59,27 +59,15 @@ export interface GitInfo {
 }
 
 export interface SoulContext {
-  version: string;
-  hot: number;
-  warm: number;
-  cold: number;
-  total: number;
-  coherence: {
-    global: number;
-    local: number;
-    structural: number;
-    temporal: number;
-    tau: number;
-  };
-  ojas?: {
-    structural: number;
-    semantic: number;
-    temporal: number;
-    capacity: number;
-    psi: number;
-    status: 'healthy' | 'degraded' | 'repair_needed' | 'critical';
-  };
-  yantra: boolean;
+  // cc-soul v3.x format
+  total_nodes: number;
+  active_nodes: number;
+  stale_nodes: number;
+  weak_nodes: number;
+  avg_confidence: number;
+  triplet_count: number;
+  yantra_ready: boolean;
+  status: 'healthy' | 'degraded' | 'repair_needed' | 'critical';
 }
 
 export interface RenderContext {
