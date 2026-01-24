@@ -80,8 +80,9 @@ function getSoulContextFromSocket(): Promise<SoulContext | undefined> {
         try {
           const response = JSON.parse(data.trim());
           // Extract structured data from JSON-RPC response
-          if (response.result?.content?.[0]?.data) {
-            resolve(response.result.content[0].data as SoulContext);
+          // Data is in result.structured, not content[0].data
+          if (response.result?.structured) {
+            resolve(response.result.structured as SoulContext);
           } else {
             resolve(undefined);
           }

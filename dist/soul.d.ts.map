@@ -1,1 +1,1 @@
-{"version":3,"file":"soul.d.ts","sourceRoot":"","sources":["../src/soul.ts"],"names":[],"mappings":"AAIA,OAAO,KAAK,EAAE,WAAW,EAAE,MAAM,YAAY,CAAC;AA8F9C,wBAAsB,mBAAmB,IAAI,OAAO,CAAC,WAAW,GAAG,SAAS,CAAC,CAE5E;AAGD,wBAAgB,cAAc,IAAI,WAAW,GAAG,SAAS,CAIxD"}
+{"version":3,"file":"soul.d.ts","sourceRoot":"","sources":["../src/soul.ts"],"names":[],"mappings":"AAIA,OAAO,KAAK,EAAE,WAAW,EAAE,MAAM,YAAY,CAAC;AA+F9C,wBAAsB,mBAAmB,IAAI,OAAO,CAAC,WAAW,GAAG,SAAS,CAAC,CAE5E;AAGD,wBAAgB,cAAc,IAAI,WAAW,GAAG,SAAS,CAIxD"}
