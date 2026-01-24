@@ -69,6 +69,7 @@ export interface SoulContext {
   triplet_count: number;
   yantra_ready: boolean;
   status: 'healthy' | 'degraded' | 'repair_needed' | 'critical';
+  transcripts_tracked: number;
 }
 
 export interface RenderContext {

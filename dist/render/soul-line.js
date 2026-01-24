@@ -39,6 +39,10 @@ export function renderSoulLine(ctx) {
     parts.push(`${dim('t:')}${white(formatWithUnits(ctx.soul.triplet_count))}`);
     // Confidence
     parts.push(`${dim('c:')}${confidenceColor(ctx.soul.avg_confidence)}`);
+    // Tracking indicator
+    if (ctx.soul.transcripts_tracked > 0) {
+        parts.push(green(`◉${ctx.soul.transcripts_tracked}`));
+    }
     // Yantra status
     if (!ctx.soul.yantra_ready) {
         parts.push(yellow('yantra?'));
