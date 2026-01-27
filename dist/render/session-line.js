@@ -1,6 +1,7 @@
 import { getModelName, getContextStats } from '../stdin.js';
 import { renderContextBar } from './context-bar.js';
-import { dim, white, cyan, red, yellow, magenta, RESET, DIM } from '../colors.js';
+import { calculateCost, calculateTokensPerMinute } from '../cost.js';
+import { dim, white, cyan, red, yellow, magenta, green, RESET, DIM } from '../colors.js';
 function formatK(n) {
     if (n >= 1_000_000)
         return `${(n / 1_000_000).toFixed(1)}M`;
@@ -38,9 +39,28 @@ export function renderSessionLine(ctx) {
     const cw = ctx.contextStdin.context_window;
     const inTok = cw?.total_input_tokens ?? 0;
     const outTok = cw?.total_output_tokens ?? 0;
+    const totalTok = inTok + outTok;
     const tokStr = `${formatK(inTok)}↓${formatK(outTok)}↑`;
     const cacheIndicator = ctx.usingCachedContext ? magenta('◂') : '';
     parts.push(`${cacheIndicator}${renderContextBar(stats.percent, stats.remaining)} ${dim(tokStr)}`);
+    // Cost tracking and tokens/min (only if we have session duration)
+    if (ctx.transcript.sessionStart) {
+        const sessionMs = Date.now() - ctx.transcript.sessionStart.getTime();
+        const model = getModelName(ctx.stdin);
+        const cost = calculateCost(model, inTok, outTok, sessionMs);
+        const tokPerMin = calculateTokensPerMinute(totalTok, sessionMs);
+        // Only show if meaningful
+        if (cost.totalCost > 0.001) {
+            const costStr = cost.totalCost < 1
+                ? `$${(cost.totalCost * 100).toFixed(1)}¢`
+                : `$${cost.totalCost.toFixed(2)}`;
+            const rateStr = `$${cost.hourlyRate.toFixed(2)}/h`;
+            parts.push(green(`${costStr} ${dim(rateStr)}`));
+        }
+        if (tokPerMin > 0) {
+            parts.push(dim(`${formatK(tokPerMin)}/m`));
+        }
+    }
     // Config counts
     const extras = [];
     if (ctx.configs.claudeMdCount > 0) {
