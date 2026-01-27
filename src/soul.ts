@@ -17,7 +17,7 @@ function djb2Hash(str: string): number {
 
 // Get mind path (same logic as cc-soul)
 function getMindPath(): string {
-  return process.env.CHITTA_DB_PATH || path.join(os.homedir(), '.claude/mind/chitta');
+  return process.env.CHITTA_DB_PATH || path.join(os.homedir(), '.claude/mind');
 }
 
 // Derive socket path from mind path (same as cc-soul)
