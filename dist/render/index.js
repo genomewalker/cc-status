@@ -1,4 +1,4 @@
-import { renderSessionLine } from './session-line.js';
+import { renderSessionLine, renderInfoLine } from './session-line.js';
 import { renderSoulLine } from './soul-line.js';
 import { renderToolsLine } from './tools-line.js';
 import { renderAgentsLine } from './agents-line.js';
@@ -9,6 +9,9 @@ export function render(ctx) {
     const sessionLine = renderSessionLine(ctx);
     if (sessionLine)
         lines.push(sessionLine);
+    const infoLine = renderInfoLine(ctx);
+    if (infoLine)
+        lines.push(infoLine);
     const soulLine = renderSoulLine(ctx);
     if (soulLine)
         lines.push(soulLine);

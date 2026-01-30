@@ -43,10 +43,27 @@ export function renderSessionLine(ctx: RenderContext): string {
   const cw = ctx.contextStdin.context_window;
   const inTok = cw?.total_input_tokens ?? 0;
   const outTok = cw?.total_output_tokens ?? 0;
-  const totalTok = inTok + outTok;
   const tokStr = `${formatK(inTok)}↓${formatK(outTok)}↑`;
   const cacheIndicator = ctx.usingCachedContext ? magenta('◂') : '';
   parts.push(`${cacheIndicator}${renderContextBar(stats.percent, stats.remaining)} ${dim(tokStr)}`);
+
+  // Compact warning on main line
+  if (stats.remaining < 5) {
+    parts.push(red('⚠ COMPACT'));
+  }
+
+  return parts.join(` ${DIM}|${RESET} `);
+}
+
+// Separate info line for cost, rate, and config counts
+export function renderInfoLine(ctx: RenderContext): string | null {
+  const stats = getContextStats(ctx.contextStdin);
+  const cw = ctx.contextStdin.context_window;
+  const inTok = cw?.total_input_tokens ?? 0;
+  const outTok = cw?.total_output_tokens ?? 0;
+  const totalTok = inTok + outTok;
+
+  const parts: string[] = [];
 
   // Cost tracking and tokens/min (only if we have session duration)
   if (ctx.transcript.sessionStart) {
@@ -61,7 +78,7 @@ export function renderSessionLine(ctx: RenderContext): string {
         ? `$${(cost.totalCost * 100).toFixed(1)}¢`
         : `$${cost.totalCost.toFixed(2)}`;
       const rateStr = `$${cost.hourlyRate.toFixed(2)}/h`;
-      parts.push(green(`${costStr} ${dim(rateStr)}`));
+      parts.push(green(`${costStr} ${rateStr}`));
     }
 
     if (tokPerMin > 0) {
@@ -84,10 +101,7 @@ export function renderSessionLine(ctx: RenderContext): string {
     parts.push(dim(extras.join(' ')));
   }
 
-  // Compact warning
-  if (stats.remaining < 5) {
-    parts.push(red('⚠ COMPACT'));
-  }
+  if (parts.length === 0) return null;
 
   return parts.join(` ${DIM}|${RESET} `);
 }
