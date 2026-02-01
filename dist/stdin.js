@@ -29,14 +29,9 @@ export function getModelName(stdin) {
 // Detect if stdin looks like subagent data
 export function isSubagentContext(stdin) {
     const model = (stdin.model?.display_name ?? stdin.model?.id ?? '').toLowerCase();
-    const usage = stdin.context_window?.current_usage;
-    const tokens = (usage?.input_tokens ?? 0) + (usage?.output_tokens ?? 0);
-    // Haiku model is commonly used for subagents
+    // Only haiku model is reliably a subagent indicator
+    // The token heuristic was too aggressive and triggered on new main sessions
     if (model.includes('haiku'))
-        return true;
-    // Very low token count with no cache suggests fresh subagent
-    const cacheTokens = usage?.cache_read_input_tokens ?? 0;
-    if (tokens < 5000 && cacheTokens === 0)
         return true;
     return false;
 }

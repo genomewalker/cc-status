@@ -3,10 +3,10 @@ import { dim, magenta, green, yellow, red, white } from '../colors.js';
 
 function statusIcon(status: string): string {
   switch (status) {
-    case 'healthy': return green('●');
+    case 'healthy': return green('*');
     case 'degraded': return yellow('~');
-    case 'repair_needed': return yellow('◑');
-    case 'critical': return red('○');
+    case 'repair_needed': return yellow('/');
+    case 'critical': return red('!');
     default: return dim('?');
   }
 }
@@ -47,7 +47,7 @@ export function renderSoulLine(ctx: RenderContext): string | null {
 
   // Tracking indicator
   if (ctx.soul.transcripts_tracked > 0) {
-    parts.push(green(`◉${ctx.soul.transcripts_tracked}`));
+    parts.push(green(`@${ctx.soul.transcripts_tracked}`));
   }
 
   // Yantra status
