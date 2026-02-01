@@ -85,21 +85,22 @@ export function getContextStats(stdin: StdinData): {
   percent: number;
   remaining: number;
 } {
-  const usage = stdin.context_window?.current_usage;
-  const size = stdin.context_window?.context_window_size ?? 200000;
+  const cw = stdin.context_window;
+  const size = cw?.context_window_size ?? 200000;
 
-  const tokens =
-    (usage?.input_tokens ?? 0) +
-    (usage?.output_tokens ?? 0) +
-    (usage?.cache_read_input_tokens ?? 0);
+  // Use total_* tokens (cumulative session usage) - more accurate than current_usage
+  // which only shows the current request's tokens
+  const totalInput = cw?.total_input_tokens ?? 0;
+  const totalOutput = cw?.total_output_tokens ?? 0;
+  const tokens = totalInput + totalOutput;
 
   const percent = Math.min(100, Math.round((tokens / size) * 100));
   const remaining = Math.max(0, 100 - percent);
 
   if (process.env.CC_STATUS_DEBUG) {
-    const cw = stdin.context_window;
-    console.error(`[cc-status debug] current_usage: input=${usage?.input_tokens} output=${usage?.output_tokens} cache_read=${usage?.cache_read_input_tokens} cache_create=${usage?.cache_creation_input_tokens}`);
-    console.error(`[cc-status debug] totals: total_input=${cw?.total_input_tokens} total_output=${cw?.total_output_tokens}`);
+    const usage = cw?.current_usage;
+    console.error(`[cc-status debug] total: input=${totalInput} output=${totalOutput} = ${tokens}`);
+    console.error(`[cc-status debug] current_usage: input=${usage?.input_tokens} output=${usage?.output_tokens} cache_read=${usage?.cache_read_input_tokens}`);
     console.error(`[cc-status debug] calculated: ${tokens}/${size} = ${percent}%`);
   }
 
