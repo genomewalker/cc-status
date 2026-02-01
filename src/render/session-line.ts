@@ -23,7 +23,7 @@ export function renderSessionLine(ctx: RenderContext): string {
   // Model (with subagent indicator)
   const model = getModelName(ctx.stdin);
   if (ctx.isSubagent) {
-    parts.push(yellow(`[${model}▸]`));
+    parts.push(yellow(`[${model}>]`));
   } else {
     parts.push(cyan(`[${model}]`));
   }
@@ -44,7 +44,7 @@ export function renderSessionLine(ctx: RenderContext): string {
   const inTok = cw?.total_input_tokens ?? 0;
   const outTok = cw?.total_output_tokens ?? 0;
   const tokStr = `${formatK(inTok)}↓${formatK(outTok)}↑`;
-  const cacheIndicator = ctx.usingCachedContext ? magenta('◂') : '';
+  const cacheIndicator = ctx.usingCachedContext ? magenta('<') : '';
   parts.push(`${cacheIndicator}${renderContextBar(stats.percent, stats.remaining)} ${dim(tokStr)}`);
 
   // Compact warning on main line

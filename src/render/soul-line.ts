@@ -4,7 +4,7 @@ import { dim, magenta, green, yellow, red, white } from '../colors.js';
 function statusIcon(status: string): string {
   switch (status) {
     case 'healthy': return green('●');
-    case 'degraded': return yellow('◐');
+    case 'degraded': return yellow('~');
     case 'repair_needed': return yellow('◑');
     case 'critical': return red('○');
     default: return dim('?');
@@ -30,7 +30,7 @@ export function renderSoulLine(ctx: RenderContext): string | null {
   const parts: string[] = [];
 
   // Soul indicator with version
-  parts.push(magenta('◈'));
+  parts.push(magenta('*'));
   if (ctx.soul.version) {
     parts.push(dim(`v${ctx.soul.version}`));
   }

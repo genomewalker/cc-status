@@ -28,8 +28,7 @@ export function render(ctx: RenderContext): void {
   if (todosLine) lines.push(todosLine);
 
   for (const line of lines) {
-    // Replace spaces with non-breaking spaces for proper display
-    const outputLine = `${RESET}${line.replace(/ /g, '\u00A0')}`;
-    console.log(outputLine);
+    // Output with reset prefix, no special character replacement
+    console.log(`${RESET}${line}${RESET}`);
   }
 }

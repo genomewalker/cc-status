@@ -20,7 +20,7 @@ function formatElapsed(agent: AgentEntry): string {
 }
 
 function formatAgent(agent: AgentEntry): string {
-  const statusIcon = agent.status === 'running' ? yellow('◐') : green('✓');
+  const statusIcon = agent.status === 'running' ? yellow('~') : green('+');
   const type = magenta(agent.type);
   const model = agent.model ? dim(`[${agent.model}]`) : '';
   const desc = agent.description ? dim(`: ${truncateDesc(agent.description)}`) : '';

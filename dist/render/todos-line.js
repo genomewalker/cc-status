@@ -13,12 +13,12 @@ export function renderTodosLine(ctx) {
     const total = todos.length;
     if (!inProgress) {
         if (completed === total && total > 0) {
-            return `${green('✓')} All todos complete ${dim(`(${completed}/${total})`)}`;
+            return `${green('+')} All todos complete ${dim(`(${completed}/${total})`)}`;
         }
         return null;
     }
     const content = truncateContent(inProgress.content);
     const progress = dim(`(${completed}/${total})`);
-    return `${yellow('▸')} ${content} ${progress}`;
+    return `${yellow('>')} ${content} ${progress}`;
 }
 //# sourceMappingURL=todos-line.js.map
