@@ -155,6 +155,7 @@ header nav a {
   font-size: 10px;
   font-weight: 500;
   letter-spacing: 0.1em;
+  padding: 12px 0;
   transition: color 0.2s;
 }
 header nav a:hover { color: var(--accent); }
@@ -162,10 +163,38 @@ header nav a:hover { color: var(--accent); }
 .nav-gh {
   color: var(--dim);
   display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
   margin-left: 4px;
   transition: color 0.2s;
 }
 .nav-gh:hover { color: var(--muted); }
+
+/* Hamburger toggle — hidden on desktop */
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  width: 44px;
+  height: 44px;
+  padding: 12px;
+  background: none;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  margin-left: auto;
+}
+.nav-toggle span {
+  display: block;
+  height: 1.5px;
+  background: var(--muted);
+  transition: transform 0.2s, opacity 0.2s;
+}
+.nav-toggle.open span:nth-child(1) { transform: translateY(5.5px) rotate(45deg); }
+.nav-toggle.open span:nth-child(2) { opacity: 0; }
+.nav-toggle.open span:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
 
 /* ═══════════════════════════════════════════
    HERO
@@ -305,6 +334,7 @@ header nav a:hover { color: var(--accent); }
   line-height: 1.65;
   white-space: pre;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ANSI terminal colors */
@@ -719,7 +749,8 @@ footer {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  flex-wrap: wrap;
+  gap: 8px 14px;
   font-family: var(--display);
   font-size: 10px;
   font-weight: 500;
@@ -786,14 +817,82 @@ footer {
   .section h2 { margin-bottom: 32px; }
 
   .sys-badge { display: none; }
+
+  /* Hamburger nav on tablet and below */
+  .nav-toggle { display: flex; }
+
+  header nav {
+    display: none;
+    position: absolute;
+    top: 56px;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    gap: 0;
+    padding: 8px 0;
+    background: rgba(11, 12, 16, 0.96);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+  header nav.nav-open { display: flex; }
+
+  header nav a {
+    padding: 14px var(--pad);
+    font-size: 11px;
+    border-bottom: 1px solid var(--border);
+  }
+  header nav a:last-child { border-bottom: none; }
+
+  /* Alerts center on tablet */
+  .alerts { max-width: none; }
+
+  /* Terminal scales down */
+  .terminal-conv,
+  .terminal-status { font-size: 11px; }
 }
 
 @media (max-width: 480px) {
-  :root { --pad: 18px; }
-  header nav a:nth-child(n+3) { display: none; }
+  :root { --pad: 16px; }
+
   .hero { padding: 40px 0 32px; }
   .section { padding: 40px 0; }
-  .hud-frame { padding: 8px; }
+
+  .hud-frame { padding: 6px; }
+  .hud-label-l,
+  .hud-label-r { display: none; }
+
+  .terminal-conv { padding: 14px 12px; }
+  .terminal-status { padding: 8px 12px 10px; }
+
+  .terminal-conv,
+  .terminal-status { font-size: 10px; line-height: 1.6; }
+
+  .code-panel { max-width: none; }
+  .install-steps { max-width: none; }
+
+  .step { flex-direction: column; gap: 8px; }
+
+  .alert { padding: 12px 14px; gap: 10px; }
+  .alert p { font-size: 15px; }
+
+  .btn-primary,
+  .btn-ghost {
+    width: 100%;
+    justify-content: center;
+    padding: 14px 24px;
+    font-size: 12px;
+  }
+
+  .footer-inner { gap: 6px 10px; }
+  .dot { display: none; }
+}
+
+@media (max-width: 360px) {
+  :root { --pad: 12px; }
+  .terminal-conv,
+  .terminal-status { font-size: 9px; }
+  .hero h1 { font-size: 36px; }
 }
 
 /* ═══════════════════════════════════════════

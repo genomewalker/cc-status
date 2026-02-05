@@ -44,7 +44,7 @@
     ].join('');
 
     var line2 = [
-      '<span class="t-green">$0.42 $5.04/h</span>',
+      '<span class="t-green">42.0\u00A2 $5.04/h</span>',
       ' <span class="t-dim">|</span> ',
       '<span class="t-dim">27K/m</span>',
       ' <span class="t-dim">|</span> ',
@@ -120,10 +120,33 @@
     });
   }
 
+  // ── Mobile nav toggle ──
+  function setupNav() {
+    var toggle = document.querySelector('.nav-toggle');
+    var nav = document.querySelector('header nav');
+    if (!toggle || !nav) return;
+
+    toggle.addEventListener('click', function () {
+      var open = nav.classList.toggle('nav-open');
+      toggle.classList.toggle('open', open);
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+
+    // Close menu on link click
+    nav.querySelectorAll('a').forEach(function (link) {
+      link.addEventListener('click', function () {
+        nav.classList.remove('nav-open');
+        toggle.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
+
   // ── Init ──
   document.addEventListener('DOMContentLoaded', function () {
     renderTerminal();
     setupObserver();
     setupCopy();
+    setupNav();
   });
 })();
