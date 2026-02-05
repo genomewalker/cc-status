@@ -68,18 +68,23 @@ export function getCachedMainContext() {
 export function getContextStats(stdin) {
     const cw = stdin.context_window;
     const size = cw?.context_window_size ?? 200000;
-    // Use total_* tokens (cumulative session usage) - more accurate than current_usage
-    // which only shows the current request's tokens
-    const totalInput = cw?.total_input_tokens ?? 0;
-    const totalOutput = cw?.total_output_tokens ?? 0;
-    const tokens = totalInput + totalOutput;
+    // Use current_usage which reflects actual context window fill.
+    // total_*_tokens are cumulative across the session (grow past the window after compaction)
+    // and are useless for showing how full the context currently is.
+    // Note: cache_creation_input_tokens is already counted within input_tokens,
+    // but cache_read_input_tokens is separate and must be added.
+    const usage = cw?.current_usage;
+    const inputTokens = (usage?.input_tokens ?? 0) + (usage?.cache_read_input_tokens ?? 0);
+    const outputTokens = usage?.output_tokens ?? 0;
+    const tokens = inputTokens + outputTokens;
     const percent = Math.min(100, Math.round((tokens / size) * 100));
     const remaining = Math.max(0, 100 - percent);
     if (process.env.CC_STATUS_DEBUG) {
-        const usage = cw?.current_usage;
-        console.error(`[cc-status debug] total: input=${totalInput} output=${totalOutput} = ${tokens}`);
-        console.error(`[cc-status debug] current_usage: input=${usage?.input_tokens} output=${usage?.output_tokens} cache_read=${usage?.cache_read_input_tokens}`);
-        console.error(`[cc-status debug] calculated: ${tokens}/${size} = ${percent}%`);
+        const totalInput = cw?.total_input_tokens ?? 0;
+        const totalOutput = cw?.total_output_tokens ?? 0;
+        console.error(`[cc-status debug] current_usage: input=${usage?.input_tokens} output=${usage?.output_tokens} cache_read=${usage?.cache_read_input_tokens} cache_create=${usage?.cache_creation_input_tokens}`);
+        console.error(`[cc-status debug] cumulative: input=${totalInput} output=${totalOutput}`);
+        console.error(`[cc-status debug] context fill: ${tokens}/${size} = ${percent}%`);
     }
     return { tokens, size, percent, remaining };
 }
