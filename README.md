@@ -40,21 +40,22 @@ $0.42 $5.04/h | 27K/m | api 28% | cache 4% | 3 MCPs
 
 ## Installation
 
-```bash
-/plugin add genomewalker/cc-status
-```
+Install from the Claude Code plugin marketplace:
 
-Then run the setup command:
+1. Open Claude Code and run `/plugin` to browse the marketplace
+2. Search for **cc-status** and install it — or install directly:
+   ```
+   /plugin add genomewalker/cc-status
+   ```
+3. Run the setup command:
+   ```
+   /cc-status-setup
+   ```
+4. Restart Claude Code
 
-```bash
-/cc-status-setup
-```
+The setup backs up your current `statusLine` config to `~/.claude/statusline.backup.json` before applying.
 
-This will:
-- Back up your current statusLine config to `~/.claude/statusline.backup.json`
-- Configure cc-status as your statusLine
-
-Restart Claude Code to see the new statusLine.
+To update to the latest version, run `/plugin update` in Claude Code.
 
 ## Uninstall
 

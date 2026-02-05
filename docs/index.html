@@ -154,14 +154,36 @@
           <div class="section-line"></div>
         </div>
         <h2>Installation</h2>
-        <div class="code-panel">
-          <div class="code-chrome">CLAUDE CODE</div>
-          <pre><code><span class="prompt">/</span>plugin add genomewalker/cc-status</code></pre>
-          <button class="copy-btn" aria-label="Copy" data-copy="/plugin add genomewalker/cc-status">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-          </button>
+        <p class="install-intro">Install from the Claude Code plugin marketplace.</p>
+        <div class="install-steps">
+          <div class="step">
+            <span class="step-num">01</span>
+            <div>
+              <p>Browse the marketplace or install directly:</p>
+              <div class="code-panel">
+                <div class="code-chrome">CLAUDE CODE</div>
+                <pre><code><span class="prompt">/</span>plugin add genomewalker/cc-status</code></pre>
+                <button class="copy-btn" aria-label="Copy" data-copy="/plugin add genomewalker/cc-status">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="step">
+            <span class="step-num">02</span>
+            <div>
+              <p>Run setup to configure your statusLine:</p>
+              <div class="code-panel compact">
+                <pre><code><span class="prompt">/</span>cc-status-setup</code></pre>
+              </div>
+            </div>
+          </div>
+          <div class="step">
+            <span class="step-num">03</span>
+            <p>Restart Claude Code. Operational.</p>
+          </div>
         </div>
-        <p class="install-step">Then run <code>/cc-status-setup</code> to configure. Restart Claude Code. Operational.</p>
+        <p class="note">Update anytime via <code>/plugin update</code> in Claude Code.</p>
       </div>
     </section>
 
