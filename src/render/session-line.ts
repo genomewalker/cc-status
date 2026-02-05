@@ -1,8 +1,8 @@
 import type { RenderContext } from '../types.js';
 import { getModelName, getContextStats } from '../stdin.js';
 import { renderContextBar } from './context-bar.js';
-import { calculateCost, calculateTokensPerMinute } from '../cost.js';
-import { dim, white, cyan, red, yellow, magenta, green, RESET, DIM } from '../colors.js';
+import { getSessionCost, calculateTokensPerMinute } from '../cost.js';
+import { dim, white, cyan, red, yellow, magenta, green, blue, RESET, DIM } from '../colors.js';
 
 function formatK(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -57,7 +57,6 @@ export function renderSessionLine(ctx: RenderContext): string {
 
 // Separate info line for cost, rate, and config counts
 export function renderInfoLine(ctx: RenderContext): string | null {
-  const stats = getContextStats(ctx.contextStdin);
   const cw = ctx.contextStdin.context_window;
   const inTok = cw?.total_input_tokens ?? 0;
   const outTok = cw?.total_output_tokens ?? 0;
@@ -65,14 +64,14 @@ export function renderInfoLine(ctx: RenderContext): string | null {
 
   const parts: string[] = [];
 
-  // Cost tracking and tokens/min (only if we have session duration)
-  if (ctx.transcript.sessionStart) {
-    const sessionMs = Date.now() - ctx.transcript.sessionStart.getTime();
+  const sessionMs = ctx.sessionDurationMs;
+
+  // Cost: prefer stdin's pre-calculated cost, fall back to local estimation
+  if (sessionMs > 0) {
     const model = getModelName(ctx.stdin);
-    const cost = calculateCost(model, inTok, outTok, sessionMs);
+    const cost = getSessionCost(ctx.stdin.cost?.total_cost_usd, model, inTok, outTok, sessionMs);
     const tokPerMin = calculateTokensPerMinute(totalTok, sessionMs);
 
-    // Only show if meaningful
     if (cost.totalCost > 0.001) {
       const costStr = cost.totalCost < 1
         ? `$${(cost.totalCost * 100).toFixed(1)}¢`
@@ -84,6 +83,22 @@ export function renderInfoLine(ctx: RenderContext): string | null {
     if (tokPerMin > 0) {
       parts.push(dim(`${formatK(tokPerMin)}/m`));
     }
+  }
+
+  // API time ratio: how much of wall time is spent in API calls
+  const apiMs = ctx.stdin.cost?.total_api_duration_ms;
+  if (apiMs != null && sessionMs > 0) {
+    const apiPct = Math.round((apiMs / sessionMs) * 100);
+    parts.push(dim(`api ${apiPct}%`));
+  }
+
+  // Cache efficiency: what fraction of input tokens came from cache
+  const usage = cw?.current_usage;
+  const cacheRead = usage?.cache_read_input_tokens ?? 0;
+  const totalInput = (usage?.input_tokens ?? 0) + cacheRead;
+  if (cacheRead > 0 && totalInput > 0) {
+    const cachePct = Math.round((cacheRead / totalInput) * 100);
+    parts.push(blue(`cache ${cachePct}%`));
   }
 
   // Config counts

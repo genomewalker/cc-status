@@ -1,6 +1,8 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { getModelName, getContextStats } from './stdin.js';
+import { getSessionCost, calculateCost } from './cost.js';
+import { formatDurationMs } from './index.js';
 import type { StdinData } from './types.js';
 
 describe('getModelName', () => {
@@ -115,5 +117,52 @@ describe('getContextStats', () => {
     const stats = getContextStats(stdin);
     assert.equal(stats.percent, 100);
     assert.equal(stats.remaining, 0);
+  });
+});
+
+describe('getSessionCost', () => {
+  it('prefers stdin cost when available', () => {
+    const cost = getSessionCost(0.50, 'Opus 4.5', 100000, 50000, 3600000);
+    assert.equal(cost.totalCost, 0.50);
+    // hourly rate: $0.50 / 1h = $0.50/h
+    assert.equal(cost.hourlyRate, 0.50);
+  });
+
+  it('falls back to local calculation when stdin cost is undefined', () => {
+    const cost = getSessionCost(undefined, 'Opus 4.5', 1_000_000, 0, 3600000);
+    // 1M input tokens * $15/1M = $15
+    assert.equal(cost.totalCost, 15);
+  });
+
+  it('falls back to local calculation when stdin cost is 0', () => {
+    const cost = getSessionCost(0, 'Opus 4.5', 1_000_000, 0, 3600000);
+    assert.equal(cost.totalCost, 15);
+  });
+
+  it('calculates hourly rate from stdin cost', () => {
+    // $1.00 over 30 minutes = $2.00/h
+    const cost = getSessionCost(1.0, 'Opus', 0, 0, 30 * 60 * 1000);
+    assert.equal(cost.totalCost, 1.0);
+    assert.equal(cost.hourlyRate, 2.0);
+  });
+});
+
+describe('formatDurationMs', () => {
+  it('returns empty string for 0ms', () => {
+    assert.equal(formatDurationMs(0), '');
+  });
+
+  it('returns <1m for under a minute', () => {
+    assert.equal(formatDurationMs(30000), '<1m');
+  });
+
+  it('returns minutes for under an hour', () => {
+    assert.equal(formatDurationMs(5 * 60000), '5m');
+    assert.equal(formatDurationMs(45 * 60000), '45m');
+  });
+
+  it('returns hours and minutes for over an hour', () => {
+    assert.equal(formatDurationMs(90 * 60000), '1h30m');
+    assert.equal(formatDurationMs(125 * 60000), '2h5m');
   });
 });

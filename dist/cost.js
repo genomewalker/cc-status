@@ -38,4 +38,17 @@ export function calculateTokensPerMinute(totalTokens, sessionDurationMs) {
     const minutes = sessionDurationMs / (1000 * 60);
     return minutes > 0 ? Math.round(totalTokens / minutes) : 0;
 }
+/**
+ * Get session cost, preferring stdin's pre-calculated cost over local estimation.
+ * Falls back to local calculation when stdin cost is not available.
+ */
+export function getSessionCost(stdinCostUsd, modelName, inputTokens, outputTokens, sessionDurationMs) {
+    const hours = sessionDurationMs / (1000 * 60 * 60);
+    if (stdinCostUsd != null && stdinCostUsd > 0) {
+        const hourlyRate = hours > 0 ? stdinCostUsd / hours : 0;
+        return { totalCost: stdinCostUsd, hourlyRate };
+    }
+    // Fallback to local calculation
+    return calculateCost(modelName, inputTokens, outputTokens, sessionDurationMs);
+}
 //# sourceMappingURL=cost.js.map

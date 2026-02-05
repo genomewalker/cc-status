@@ -1,6 +1,6 @@
 {
   "name": "cc-status",
-  "version": "0.10.4",
+  "version": "0.11.0",
   "description": "Custom statusline for Claude Code with context tracking and git info",
   "type": "module",
   "main": "dist/index.js",
@@ -9,7 +9,7 @@
     "prepare": "git config core.hooksPath .githooks 2>/dev/null || true && npm run build",
     "dev": "tsc --watch",
     "test": "tsc && node --test dist/*.test.js",
-    "test:stdin": "echo '{\"model\":{\"display_name\":\"Opus 4.5\"},\"context_window\":{\"current_usage\":{\"input_tokens\":45000,\"output_tokens\":5000,\"cache_creation_input_tokens\":1000,\"cache_read_input_tokens\":2000},\"context_window_size\":200000},\"cwd\":\"/tmp\"}' | node dist/index.js"
+    "test:stdin": "echo '{\"model\":{\"display_name\":\"Opus 4.5\"},\"context_window\":{\"current_usage\":{\"input_tokens\":45000,\"output_tokens\":5000,\"cache_creation_input_tokens\":1000,\"cache_read_input_tokens\":2000},\"total_input_tokens\":120000,\"total_output_tokens\":15000,\"context_window_size\":200000},\"cost\":{\"total_cost_usd\":0.42,\"total_duration_ms\":300000,\"total_api_duration_ms\":85000},\"cwd\":\"/tmp\"}' | node dist/index.js"
   },
   "keywords": [
     "claude-code",

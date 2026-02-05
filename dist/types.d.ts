@@ -7,6 +7,8 @@ export interface StdinData {
         context_window_size?: number;
         total_input_tokens?: number;
         total_output_tokens?: number;
+        used_percentage?: number;
+        remaining_percentage?: number;
         current_usage?: {
             input_tokens?: number;
             output_tokens?: number;
@@ -14,8 +16,21 @@ export interface StdinData {
             cache_read_input_tokens?: number;
         };
     };
+    cost?: {
+        total_cost_usd?: number;
+        total_duration_ms?: number;
+        total_api_duration_ms?: number;
+        total_lines_added?: number;
+        total_lines_removed?: number;
+    };
     cwd?: string;
     transcript_path?: string;
+    session_id?: string;
+    version?: string;
+    workspace?: {
+        current_dir?: string;
+        project_dir?: string;
+    };
 }
 export interface ToolEntry {
     name: string;
@@ -70,6 +85,7 @@ export interface RenderContext {
     git?: GitInfo;
     soul?: SoulContext;
     sessionDuration: string;
+    sessionDurationMs: number;
     contextStdin: StdinData;
     isSubagent: boolean;
     usingCachedContext: boolean;

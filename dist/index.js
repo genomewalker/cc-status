@@ -5,10 +5,9 @@ import { countConfigs } from './configs.js';
 import { getGitInfo } from './git.js';
 import { getSoulContextAsync } from './soul.js';
 import { render } from './render/index.js';
-export function formatSessionDuration(sessionStart, now = () => Date.now()) {
-    if (!sessionStart)
+export function formatDurationMs(ms) {
+    if (ms <= 0)
         return '';
-    const ms = now() - sessionStart.getTime();
     const mins = Math.floor(ms / 60000);
     if (mins < 1)
         return '<1m';
@@ -33,7 +32,10 @@ export async function main() {
         const configs = countConfigs(stdin.cwd);
         const git = getGitInfo();
         const soul = await getSoulContextAsync();
-        const sessionDuration = formatSessionDuration(transcript.sessionStart);
+        // Prefer stdin duration (from Claude Code), fall back to transcript timestamp
+        const sessionDurationMs = stdin.cost?.total_duration_ms
+            ?? (transcript.sessionStart ? Date.now() - transcript.sessionStart.getTime() : 0);
+        const sessionDuration = formatDurationMs(sessionDurationMs);
         // Determine if this is subagent context and handle caching
         const isSubagent = isSubagentContext(stdin);
         let contextStdin = stdin;
@@ -57,6 +59,7 @@ export async function main() {
             git,
             soul,
             sessionDuration,
+            sessionDurationMs,
             contextStdin,
             isSubagent,
             usingCachedContext,
