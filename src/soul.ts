@@ -73,14 +73,15 @@ function getSoulContextFromSocket(): Promise<SoulContext | undefined> {
 
     client.on('data', (chunk) => {
       data += chunk.toString();
-      if (data.includes('\n')) {
+      // Wait for a complete line, then try to parse
+      const nlIdx = data.indexOf('\n');
+      if (nlIdx !== -1) {
         clearTimeout(timeout);
         resolved = true;
         client.destroy();
         try {
-          const response = JSON.parse(data.trim());
-          // Extract structured data from JSON-RPC response
-          // Data is in result.structured, not content[0].data
+          // Parse only the first complete line (up to the newline)
+          const response = JSON.parse(data.slice(0, nlIdx).trim());
           if (response.result?.structured) {
             resolve(response.result.structured as SoulContext);
           } else {

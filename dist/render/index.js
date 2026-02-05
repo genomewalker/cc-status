@@ -18,9 +18,8 @@ export function render(ctx) {
     const toolsLine = renderToolsLine(ctx);
     if (toolsLine)
         lines.push(toolsLine);
-    const agentsLine = renderAgentsLine(ctx);
-    if (agentsLine)
-        lines.push(agentsLine);
+    const agentLines = renderAgentsLine(ctx);
+    lines.push(...agentLines);
     const todosLine = renderTodosLine(ctx);
     if (todosLine)
         lines.push(todosLine);

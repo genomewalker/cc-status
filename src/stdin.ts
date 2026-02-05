@@ -31,13 +31,25 @@ export function getModelName(stdin: StdinData): string {
   return stdin.model?.display_name ?? stdin.model?.id ?? '...';
 }
 
-// Detect if stdin looks like subagent data
+// Detect if stdin looks like subagent data.
+// Claude Code passes session_id for the main session. Subagent invocations
+// have a different (or missing) session_id and typically use smaller models.
+// We compare the current session_id against the cached main context to detect
+// subagent context switches, with haiku as a reliable fallback heuristic.
 export function isSubagentContext(stdin: StdinData): boolean {
   const model = (stdin.model?.display_name ?? stdin.model?.id ?? '').toLowerCase();
 
-  // Only haiku model is reliably a subagent indicator
-  // The token heuristic was too aggressive and triggered on new main sessions
+  // Haiku is always a subagent
   if (model.includes('haiku')) return true;
+
+  // If we have a cached main context with a session_id, and the current
+  // session_id differs, this is likely a subagent using a different model
+  if (stdin.session_id) {
+    const cached = getCachedMainContext();
+    if (cached?.session_id && cached.session_id !== stdin.session_id) {
+      return true;
+    }
+  }
 
   return false;
 }

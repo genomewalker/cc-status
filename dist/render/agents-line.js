@@ -31,7 +31,7 @@ export function renderAgentsLine(ctx) {
     const recentCompleted = agents.filter(a => a.status === 'completed').slice(-2);
     const toShow = [...runningAgents, ...recentCompleted].slice(-3);
     if (toShow.length === 0)
-        return null;
-    return toShow.map(formatAgent).join('\n');
+        return [];
+    return toShow.map(formatAgent);
 }
 //# sourceMappingURL=agents-line.js.map

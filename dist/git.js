@@ -9,13 +9,12 @@ export function getGitInfo() {
     try {
         const toplevel = execSync('git rev-parse --show-toplevel', { encoding: 'utf8', stdio: 'pipe' }).trim();
         const repo = toplevel.split('/').pop() ?? '';
-        const branchOutput = execSync('git branch 2>/dev/null', { encoding: 'utf8', stdio: 'pipe' });
-        const branchMatch = branchOutput.match(/^\* (.+)$/m);
-        const branch = branchMatch?.[1] ?? 'unknown';
+        const branchRaw = execSync('git rev-parse --abbrev-ref HEAD 2>/dev/null', { encoding: 'utf8', stdio: 'pipe' }).trim();
+        const branch = branchRaw || 'unknown';
         let added = 0;
         let deleted = 0;
         try {
-            const diffOutput = execSync('git diff --numstat 2>/dev/null', { encoding: 'utf8', stdio: 'pipe' });
+            const diffOutput = execSync('git diff HEAD --numstat 2>/dev/null', { encoding: 'utf8', stdio: 'pipe' });
             for (const line of diffOutput.split('\n')) {
                 const parts = line.split('\t');
                 if (parts.length >= 2) {

@@ -36,9 +36,9 @@ export function renderSessionLine(ctx) {
     }
     // Context bar with token counts (uses main session context even during subagent)
     const stats = getContextStats(ctx.contextStdin);
-    const cw = ctx.contextStdin.context_window;
-    const inTok = cw?.total_input_tokens ?? 0;
-    const outTok = cw?.total_output_tokens ?? 0;
+    const usage = ctx.contextStdin.context_window?.current_usage;
+    const inTok = (usage?.input_tokens ?? 0) + (usage?.cache_read_input_tokens ?? 0);
+    const outTok = usage?.output_tokens ?? 0;
     const tokStr = `${formatK(inTok)}↓${formatK(outTok)}↑`;
     const cacheIndicator = ctx.usingCachedContext ? magenta('<') : '';
     parts.push(`${cacheIndicator}${renderContextBar(stats.percent, stats.remaining)} ${dim(tokStr)}`);
@@ -50,6 +50,7 @@ export function renderSessionLine(ctx) {
 }
 // Separate info line for cost, rate, and config counts
 export function renderInfoLine(ctx) {
+    // Use contextStdin (main session, even during subagent) for tokens AND cost
     const cw = ctx.contextStdin.context_window;
     const inTok = cw?.total_input_tokens ?? 0;
     const outTok = cw?.total_output_tokens ?? 0;
@@ -57,13 +58,14 @@ export function renderInfoLine(ctx) {
     const parts = [];
     const sessionMs = ctx.sessionDurationMs;
     // Cost: prefer stdin's pre-calculated cost, fall back to local estimation
+    // Use contextStdin for model/cost to avoid mixing subagent data with main session tokens
     if (sessionMs > 0) {
-        const model = getModelName(ctx.stdin);
-        const cost = getSessionCost(ctx.stdin.cost?.total_cost_usd, model, inTok, outTok, sessionMs);
+        const model = getModelName(ctx.contextStdin);
+        const cost = getSessionCost(ctx.contextStdin.cost?.total_cost_usd, model, inTok, outTok, sessionMs);
         const tokPerMin = calculateTokensPerMinute(totalTok, sessionMs);
         if (cost.totalCost > 0.001) {
             const costStr = cost.totalCost < 1
-                ? `$${(cost.totalCost * 100).toFixed(1)}¢`
+                ? `${(cost.totalCost * 100).toFixed(1)}¢`
                 : `$${cost.totalCost.toFixed(2)}`;
             const rateStr = `$${cost.hourlyRate.toFixed(2)}/h`;
             parts.push(green(`${costStr} ${rateStr}`));

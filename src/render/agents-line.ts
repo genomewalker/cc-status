@@ -29,14 +29,14 @@ function formatAgent(agent: AgentEntry): string {
   return `${statusIcon} ${type}${model ? ` ${model}` : ''}${desc} ${dim(`(${elapsed})`)}`;
 }
 
-export function renderAgentsLine(ctx: RenderContext): string | null {
+export function renderAgentsLine(ctx: RenderContext): string[] {
   const { agents } = ctx.transcript;
 
   const runningAgents = agents.filter(a => a.status === 'running');
   const recentCompleted = agents.filter(a => a.status === 'completed').slice(-2);
 
   const toShow = [...runningAgents, ...recentCompleted].slice(-3);
-  if (toShow.length === 0) return null;
+  if (toShow.length === 0) return [];
 
-  return toShow.map(formatAgent).join('\n');
+  return toShow.map(formatAgent);
 }

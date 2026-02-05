@@ -16,13 +16,16 @@ const PRICING = {
 };
 function getPricing(modelName) {
     const lower = modelName.toLowerCase();
+    // Find the longest matching key for most-specific match
+    let bestMatch = null;
+    let bestLen = 0;
     for (const [key, pricing] of Object.entries(PRICING)) {
-        if (lower.includes(key)) {
-            return pricing;
+        if (lower.includes(key) && key.length > bestLen) {
+            bestMatch = pricing;
+            bestLen = key.length;
         }
     }
-    // Default to Sonnet pricing
-    return PRICING['sonnet'];
+    return bestMatch ?? PRICING['sonnet'];
 }
 export function calculateCost(modelName, inputTokens, outputTokens, sessionDurationMs) {
     const pricing = getPricing(modelName);
