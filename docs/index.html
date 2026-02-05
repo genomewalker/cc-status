@@ -3,34 +3,31 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>cc-status — terminal HUD for Claude Code</title>
+  <title>CC-STATUS — Terminal HUD for Claude Code</title>
   <meta name="description" content="Real-time session telemetry at the bottom of your terminal: context, cost, tools, agents, and focus." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&family=Chakra+Petch:ital,wght@0,300;0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-  <!-- Overlays -->
-  <div class="scanlines" aria-hidden="true"></div>
-  <div class="grid-texture" aria-hidden="true"></div>
+  <div class="dot-grid" aria-hidden="true"></div>
 
-  <!-- Header -->
-  <header class="site-header">
+  <header>
     <div class="wrap header-inner">
-      <a href="#" class="brand">
-        <span class="brand-prefix">cc</span><span class="brand-name">-status</span>
-        <span class="brand-tag">HUD</span>
-      </a>
-      <nav class="nav" aria-label="Primary">
-        <a href="#readouts">readouts</a>
-        <a href="#why">signal</a>
-        <a href="#install">install</a>
-        <a href="#data">architecture</a>
-        <a href="#faq">faq</a>
+      <a href="#" class="logo">CC<span class="logo-sep">—</span>STATUS</a>
+      <div class="sys-badge">
+        <span class="sys-dot"></span>
+        SYS ACTIVE
+      </div>
+      <nav aria-label="Primary">
+        <a href="#readouts">READOUTS</a>
+        <a href="#signal">SIGNAL</a>
+        <a href="#install">INSTALL</a>
+        <a href="#faq">INTEL</a>
       </nav>
-      <a href="https://github.com/genomewalker/cc-status" class="nav-github" aria-label="GitHub repository">
+      <a href="https://github.com/genomewalker/cc-status" class="nav-gh" aria-label="GitHub">
         <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
       </a>
     </div>
@@ -38,197 +35,181 @@
 
   <main>
 
-    <!-- ═══════ HERO ═══════ -->
-    <section class="hero" aria-labelledby="hero-title">
+    <!-- ═══ HERO ═══ -->
+    <section class="hero">
       <div class="wrap">
-        <div class="hero-eyebrow">STATUSLINE PLUGIN</div>
-        <h1 id="hero-title" class="hero-title"><span class="accent">cc</span>-status</h1>
-        <p class="hero-subtitle">a terminal HUD for Claude Code</p>
-        <p class="hero-desc">Real-time session telemetry at the bottom of your terminal: context, cost, tools, agents, and focus.</p>
-
-        <div class="hero-cta">
-          <a href="#install" class="btn btn-primary">Install</a>
-          <a href="https://github.com/genomewalker/cc-status" class="btn btn-ghost">View on GitHub</a>
+        <div class="hero-text">
+          <span class="designation">STATUSLINE PLUGIN</span>
+          <h1>CC-STATUS</h1>
+          <p class="hero-sub">Terminal HUD for Claude Code</p>
+          <p class="hero-desc">Context window, cost, burn rate, tools, agents, and focus &mdash; one glance, no switching.</p>
         </div>
 
-        <!-- Terminal rendering -->
-        <div class="terminal-wrap">
+        <div class="hud-frame">
+          <span class="hud-c tl" aria-hidden="true"></span>
+          <span class="hud-c tr" aria-hidden="true"></span>
+          <span class="hud-c bl" aria-hidden="true"></span>
+          <span class="hud-c br" aria-hidden="true"></span>
+          <span class="hud-label-l" aria-hidden="true">SESSION DISPLAY</span>
+          <span class="hud-label-r" aria-hidden="true">LIVE</span>
           <div class="terminal">
-            <div class="terminal-chrome">
-              <span class="terminal-dot"></span>
-              <span class="terminal-dot"></span>
-              <span class="terminal-dot"></span>
-              <span class="terminal-title">claude &mdash; cc-status</span>
+            <div class="terminal-body">
+              <div class="terminal-conv" id="terminal-conv">
+                <!-- filled by main.js -->
+              </div>
+              <div class="terminal-sep">
+                <span>CC-STATUS OUTPUT</span>
+              </div>
+              <div class="terminal-status" id="terminal-status">
+                <!-- filled by main.js -->
+              </div>
             </div>
-            <div class="terminal-body" id="term-body">
-              <!-- filled by main.js -->
-            </div>
-            <span class="term-annotation ann-1">session</span>
-            <span class="term-annotation ann-2">telemetry</span>
-            <span class="term-annotation ann-3">soul</span>
+          </div>
+        </div>
+
+        <div class="hero-actions">
+          <a href="#install" class="btn-primary">INITIALIZE</a>
+          <a href="https://github.com/genomewalker/cc-status" class="btn-ghost">SOURCE CODE &rarr;</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ READOUTS ═══ -->
+    <section id="readouts" class="section reveal">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="section-tag">READOUTS</span>
+          <div class="section-line"></div>
+        </div>
+        <h2>Six Signals, One Bar</h2>
+        <div class="panel-grid">
+          <div class="panel">
+            <span class="panel-id">SYS-01</span>
+            <h3>SESSION</h3>
+            <p>Repo, branch, model, duration, diff stats, context bar, and token counts.</p>
+          </div>
+          <div class="panel">
+            <span class="panel-id">SYS-02</span>
+            <h3>COST</h3>
+            <p>Live cost, burn rate, tokens/min, API time ratio, cache efficiency, MCP counts.</p>
+          </div>
+          <div class="panel">
+            <span class="panel-id">SYS-03</span>
+            <h3>SOUL</h3>
+            <p>cc-soul health: nodes, triplets, and confidence &mdash; if you run it.</p>
+          </div>
+          <div class="panel">
+            <span class="panel-id">SYS-04</span>
+            <h3>TOOLS</h3>
+            <p>Running tools with names plus completed counts from the transcript.</p>
+          </div>
+          <div class="panel">
+            <span class="panel-id">SYS-05</span>
+            <h3>AGENTS</h3>
+            <p>Subagent activity with running/completed status and elapsed time.</p>
+          </div>
+          <div class="panel">
+            <span class="panel-id">SYS-06</span>
+            <h3>TODOS</h3>
+            <p>Current in-progress task so you don&rsquo;t lose focus mid-flow.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ═══════ READOUTS ═══════ -->
-    <section id="readouts" class="section">
+    <!-- ═══ SIGNAL ═══ -->
+    <section id="signal" class="section reveal">
       <div class="wrap">
-        <div class="section-label">01</div>
-        <h2>What you get</h2>
-
-        <div class="modules-grid">
-          <div class="module mod-session">
-            <div class="module-header">
-              <span class="module-dot"></span>
-              <span class="module-label">Session</span>
-            </div>
-            <p>Repo + branch, model, duration, diff stats, context bar, and token counts in one scan.</p>
+        <div class="section-head">
+          <span class="section-tag">SIGNAL</span>
+          <div class="section-line"></div>
+        </div>
+        <h2>Why It Matters</h2>
+        <div class="alerts">
+          <div class="alert">
+            <span class="alert-marker">&#x25B8;</span>
+            <p><strong>Protect</strong> context. Know limits before they hurt quality.</p>
           </div>
-
-          <div class="module mod-cost">
-            <div class="module-header">
-              <span class="module-dot"></span>
-              <span class="module-label">Cost</span>
-            </div>
-            <p>Cost, burn rate, tokens/min, API ratio, cache efficiency, and config counts.</p>
+          <div class="alert">
+            <span class="alert-marker">&#x25B8;</span>
+            <p><strong>Track</strong> cost live, not after the session.</p>
           </div>
-
-          <div class="module mod-soul">
-            <div class="module-header">
-              <span class="module-dot"></span>
-              <span class="module-label">Soul</span>
-            </div>
-            <p>cc-soul health snapshot: nodes, triplets, and confidence.</p>
+          <div class="alert">
+            <span class="alert-marker">&#x25B8;</span>
+            <p><strong>Spot</strong> slow sessions by isolating API time.</p>
           </div>
-
-          <div class="module mod-tools">
-            <div class="module-header">
-              <span class="module-dot"></span>
-              <span class="module-label">Tools</span>
-            </div>
-            <p>Running tools plus completed counts from the transcript.</p>
-          </div>
-
-          <div class="module mod-agents">
-            <div class="module-header">
-              <span class="module-dot"></span>
-              <span class="module-label">Agents</span>
-            </div>
-            <p>Subagent activity with running/completed status.</p>
-          </div>
-
-          <div class="module mod-todos">
-            <div class="module-header">
-              <span class="module-dot"></span>
-              <span class="module-label">Todos</span>
-            </div>
-            <p>Current in-progress task so you don't lose focus mid-flow.</p>
+          <div class="alert">
+            <span class="alert-marker">&#x25B8;</span>
+            <p><strong>Map</strong> tools, agents, and tasks at a glance.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ═══════ WHY ═══════ -->
-    <section id="why" class="section">
+    <!-- ═══ INSTALL ═══ -->
+    <section id="install" class="section reveal">
       <div class="wrap">
-        <div class="section-label">02</div>
-        <h2>Why it matters</h2>
-
-        <div class="reasons">
-          <div class="reason">
-            <span class="reason-marker">&gt;</span>
-            <p>Know when you're about to hit context limits before it hurts answer quality.</p>
-          </div>
-          <div class="reason">
-            <span class="reason-marker">&gt;</span>
-            <p>See cost and burn rate live, not after the session.</p>
-          </div>
-          <div class="reason">
-            <span class="reason-marker">&gt;</span>
-            <p>Spot slow sessions by separating API time from everything else.</p>
-          </div>
-          <div class="reason">
-            <span class="reason-marker">&gt;</span>
-            <p>Keep a mental map of tools, agents, and tasks without leaving the terminal.</p>
-          </div>
+        <div class="section-head">
+          <span class="section-tag">PROCEDURE</span>
+          <div class="section-line"></div>
         </div>
-      </div>
-    </section>
-
-    <!-- ═══════ INSTALL ═══════ -->
-    <section id="install" class="section">
-      <div class="wrap">
-        <div class="section-label">03</div>
         <h2>Installation</h2>
-
-        <div class="code-block">
-          <div class="code-bar">
-            <span class="code-dot red"></span>
-            <span class="code-dot yellow"></span>
-            <span class="code-dot green"></span>
-            <span class="code-title">terminal</span>
-          </div>
-          <pre><code><span class="prompt">$</span> git clone https://github.com/genomewalker/cc-status
-<span class="prompt">$</span> cd cc-status && npm install && npm run build</code></pre>
-          <button class="copy-btn" aria-label="Copy install commands" data-copy="git clone https://github.com/genomewalker/cc-status && cd cc-status && npm install && npm run build">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        <div class="code-panel">
+          <div class="code-chrome">CLAUDE CODE</div>
+          <pre><code><span class="prompt">/</span>plugin add genomewalker/cc-status</code></pre>
+          <button class="copy-btn" aria-label="Copy" data-copy="/plugin add genomewalker/cc-status">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
           </button>
         </div>
-
-        <p class="install-note">Wire it to Claude Code's <span class="hl">statusLine</span> config and it appears at the bottom of your terminal. Zero dependencies beyond Node.js.</p>
+        <p class="install-step">Then run <code>/cc-status-setup</code> to configure. Restart Claude Code. Operational.</p>
       </div>
     </section>
 
-    <!-- ═══════ DATA SOURCES ═══════ -->
-    <section id="data" class="section">
+    <!-- ═══ ARCHITECTURE ═══ -->
+    <section id="architecture" class="section reveal">
       <div class="wrap">
-        <div class="section-label">04</div>
-        <h2>Data sources</h2>
-
-        <ul class="data-list">
-          <li class="data-item">
-            <span class="data-marker">//</span>
-            Reads Claude Code's statusLine JSON on stdin.
-          </li>
-          <li class="data-item">
-            <span class="data-marker">//</span>
-            Uses session-level telemetry: cost, duration, context usage, cache reads.
-          </li>
-          <li class="data-item">
-            <span class="data-marker">//</span>
-            Computes display-friendly metrics: burn rate, tokens/min, ratios.
-          </li>
-          <li class="data-item">
-            <span class="data-marker">//</span>
-            No external services. No network calls. Local only.
-          </li>
-        </ul>
+        <div class="section-head">
+          <span class="section-tag">ARCHITECTURE</span>
+          <div class="section-line"></div>
+        </div>
+        <h2>Data Flow</h2>
+        <div class="flow">
+          <span class="flow-node">Claude Code</span>
+          <span class="flow-arrow">&#x25B6;</span>
+          <span class="flow-node">statusLine JSON</span>
+          <span class="flow-arrow">&#x25B6;</span>
+          <span class="flow-node active">cc-status</span>
+          <span class="flow-arrow">&#x25B6;</span>
+          <span class="flow-node">Terminal HUD</span>
+        </div>
+        <p class="note center">No network calls. No external services. Local stdin only.</p>
       </div>
     </section>
 
-    <!-- ═══════ FAQ ═══════ -->
-    <section id="faq" class="section">
+    <!-- ═══ FAQ ═══ -->
+    <section id="faq" class="section reveal">
       <div class="wrap">
-        <div class="section-label">05</div>
+        <div class="section-head">
+          <span class="section-tag">INTEL</span>
+          <div class="section-line"></div>
+        </div>
         <h2>FAQ</h2>
-
         <div class="faq-grid">
           <div class="faq-item">
-            <div class="faq-q">Does it phone home?</div>
-            <div class="faq-a">No. It reads stdin and local files only.</div>
+            <h3>Does it phone home?</h3>
+            <p>Negative. Reads stdin and local files only.</p>
           </div>
           <div class="faq-item">
-            <div class="faq-q">Will it work outside Claude Code?</div>
-            <div class="faq-a">Not really &mdash; it's built for statusLine stdin.</div>
+            <h3>Outside Claude Code?</h3>
+            <p>Negative &mdash; built for statusLine stdin protocol.</p>
           </div>
           <div class="faq-item">
-            <div class="faq-q">Can I trust the cost numbers?</div>
-            <div class="faq-a">They come from Claude Code's session telemetry; cc-status just formats and derives rates.</div>
+            <h3>Trust the cost numbers?</h3>
+            <p>Affirmative. Data from Claude Code session telemetry. cc-status formats and derives.</p>
           </div>
           <div class="faq-item">
-            <div class="faq-q">What if I don't run cc-soul?</div>
-            <div class="faq-a">That line stays quiet; everything else still works.</div>
+            <h3>No cc-soul installed?</h3>
+            <p>Soul line stays quiet. All other systems nominal.</p>
           </div>
         </div>
       </div>
@@ -236,37 +217,17 @@
 
   </main>
 
-  <!-- Footer -->
-  <footer class="site-footer">
+  <footer>
     <div class="wrap footer-inner">
-      <span>cc-status</span>
-      <span class="footer-sep" aria-hidden="true">&middot;</span>
-      <span>Claude Code plugin</span>
-      <span class="footer-sep" aria-hidden="true">&middot;</span>
+      <span>CC-STATUS</span>
+      <span class="dot">&middot;</span>
+      <span>Claude Code Plugin</span>
+      <span class="dot">&middot;</span>
       <span>MIT</span>
-      <span class="footer-sep" aria-hidden="true">&middot;</span>
+      <span class="dot">&middot;</span>
       <a href="https://github.com/genomewalker">genomewalker</a>
     </div>
   </footer>
-
-  <!-- Fixed status bar (like the real thing) -->
-  <div class="status-bar" aria-hidden="true">
-    <div class="sb-left">
-      <span class="sb-dot"></span>
-      <span class="t-dim">cc-status</span>
-      <span class="t-dim">|</span>
-      <span class="t-dim">v0.11.0</span>
-      <span class="t-dim">|</span>
-      <span class="t-green">ready</span>
-    </div>
-    <div class="sb-right">
-      <span class="t-dim">TypeScript</span>
-      <span class="t-dim">|</span>
-      <span class="t-dim">0 deps</span>
-      <span class="t-dim">|</span>
-      <span class="t-dim">MIT</span>
-    </div>
-  </div>
 
   <script src="main.js"></script>
 </body>
