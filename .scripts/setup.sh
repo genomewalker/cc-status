@@ -25,7 +25,7 @@ if [[ "$CURRENT_STATUSLINE" != "null" ]]; then
 fi
 
 # Build the statusLine command (use sort -V for proper version ordering)
-STATUSLINE_CMD="node ~/.claude/plugins/cache/${PLUGIN_DIR}/\"\$(ls ~/.claude/plugins/cache/${PLUGIN_DIR}/ 2>/dev/null | sort -V -r | head -1)\"/dist/index.js"
+STATUSLINE_CMD="node ~/.claude/plugins/cache/${PLUGIN_DIR}/\"\$(ls ~/.claude/plugins/cache/${PLUGIN_DIR}/ 2>/dev/null | grep -E '^[0-9]' | sort -V -r | head -1)\"/dist/index.js"
 
 # Update settings.json with cc-status
 jq --arg cmd "$STATUSLINE_CMD" '.statusLine = {

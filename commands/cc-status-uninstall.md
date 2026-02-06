@@ -21,6 +21,6 @@ Run this command to remove cc-status and restore your previous statusLine config
 ## Implementation
 
 ```bash
-SCRIPT_DIR="$HOME/.claude/plugins/cache/genomewalker-cc-status/cc-status/$(ls ~/.claude/plugins/cache/genomewalker-cc-status/cc-status/ 2>/dev/null | sort -V -r | head -1)/.scripts"
+SCRIPT_DIR="$HOME/.claude/plugins/cache/genomewalker-cc-status/cc-status/$(ls ~/.claude/plugins/cache/genomewalker-cc-status/cc-status/ 2>/dev/null | grep -E '^[0-9]' | sort -V -r | head -1)/.scripts"
 bash "$SCRIPT_DIR/uninstall.sh"
 ```
