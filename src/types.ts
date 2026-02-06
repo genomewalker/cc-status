@@ -74,17 +74,28 @@ export interface GitInfo {
 }
 
 export interface SoulContext {
-  // cc-soul v3.x format
+  // cc-soul v3.31+ format (mind-based)
   version: string;
-  total_nodes: number;
-  active_nodes: number;
-  stale_nodes: number;
-  weak_nodes: number;
-  avg_confidence: number;
-  triplet_count: number;
+  partnership: {
+    preferences: number;
+    corrections: number;
+    insights: number;
+    solutions: number;
+  };
+  memory: {
+    wisdom: number;
+    beliefs: number;
+    episodes: number;
+    total: number;
+    avg_confidence: number;
+  };
+  code: {
+    symbols: number;
+    triplets: number;
+    projects: Array<{ name: string; files: number }>;
+  };
   yantra_ready: boolean;
-  status: 'healthy' | 'degraded' | 'repair_needed' | 'critical';
-  transcripts_tracked: number;
+  status: 'OK' | 'ERROR';
 }
 
 export interface RenderContext {

@@ -1,14 +1,8 @@
 import type { RenderContext } from '../types.js';
-import { dim, magenta, green, yellow, red, white } from '../colors.js';
+import { dim, magenta, green, yellow, red, white, cyan } from '../colors.js';
 
 function statusIcon(status: string): string {
-  switch (status) {
-    case 'healthy': return green('*');
-    case 'degraded': return yellow('~');
-    case 'repair_needed': return yellow('/');
-    case 'critical': return red('!');
-    default: return dim('?');
-  }
+  return status === 'OK' ? green('✓') : red('✗');
 }
 
 function formatWithUnits(n: number): string {
@@ -28,29 +22,31 @@ export function renderSoulLine(ctx: RenderContext): string | null {
   if (!ctx.soul) return null;
 
   const parts: string[] = [];
+  const { partnership, memory, code } = ctx.soul;
 
-  // Soul indicator with version
-  parts.push(magenta('*'));
+  // Soul indicator with version and status
+  parts.push(magenta('◈'));
   if (ctx.soul.version) {
     parts.push(dim(`v${ctx.soul.version}`));
   }
   parts.push(statusIcon(ctx.soul.status));
 
-  // Node count
-  parts.push(`${dim('n:')}${white(formatWithUnits(ctx.soul.total_nodes))}`);
+  // Memory stats: total memories with confidence
+  parts.push(`${dim('mem:')}${white(formatWithUnits(memory.total))} ${confidenceColor(memory.avg_confidence)}`);
 
-  // Triplets
-  parts.push(`${dim('t:')}${white(formatWithUnits(ctx.soul.triplet_count))}`);
-
-  // Confidence
-  parts.push(`${dim('c:')}${confidenceColor(ctx.soul.avg_confidence)}`);
-
-  // Tracking indicator
-  if (ctx.soul.transcripts_tracked > 0) {
-    parts.push(green(`@${ctx.soul.transcripts_tracked}`));
+  // Partnership stats (preferences + corrections as learning indicators)
+  const partnershipTotal = partnership.preferences + partnership.corrections + partnership.insights + partnership.solutions;
+  if (partnershipTotal > 0) {
+    parts.push(`${dim('learn:')}${cyan(formatWithUnits(partnershipTotal))}`);
   }
 
-  // Yantra status
+  // Code intelligence: symbols and projects
+  if (code.symbols > 0) {
+    const projCount = code.projects?.length ?? 0;
+    parts.push(`${dim('code:')}${white(formatWithUnits(code.symbols))}${projCount > 0 ? dim(`@${projCount}`) : ''}`);
+  }
+
+  // Yantra status (only show if not ready)
   if (!ctx.soul.yantra_ready) {
     parts.push(yellow('yantra?'));
   }
