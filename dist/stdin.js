@@ -1,8 +1,28 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-const CACHE_FILE = path.join(os.tmpdir(), 'cc-status-main-context.json');
+const CACHE_DIR = path.join(os.tmpdir(), 'cc-status');
 const CACHE_MAX_AGE_MS = 30 * 60 * 1000; // 30 minutes
+// Current session_id, set when we first read stdin. Used to scope the cache
+// file so multiple independent Claude Code sessions don't cross-pollute.
+let currentSessionId;
+function getCacheFile() {
+    if (currentSessionId) {
+        return path.join(CACHE_DIR, `main-context-${currentSessionId}.json`);
+    }
+    // Fallback for sessions without an id
+    return path.join(CACHE_DIR, 'main-context.json');
+}
+function ensureCacheDir() {
+    try {
+        if (!fs.existsSync(CACHE_DIR)) {
+            fs.mkdirSync(CACHE_DIR, { recursive: true });
+        }
+    }
+    catch {
+        // Ignore
+    }
+}
 export async function readStdin() {
     if (process.stdin.isTTY) {
         return null;
@@ -17,7 +37,14 @@ export async function readStdin() {
         if (!raw.trim()) {
             return null;
         }
-        return JSON.parse(raw);
+        const data = JSON.parse(raw);
+        // Capture session_id early so cache files are scoped per-session.
+        // This prevents independent Claude Code instances (e.g. one in Prism,
+        // one in a regular terminal) from cross-polluting each other's data.
+        if (data.session_id) {
+            currentSessionId = data.session_id;
+        }
+        return data;
     }
     catch {
         return null;
@@ -29,15 +56,18 @@ export function getModelName(stdin) {
 // Detect if stdin looks like subagent data.
 // Claude Code passes session_id for the main session. Subagent invocations
 // have a different (or missing) session_id and typically use smaller models.
-// We compare the current session_id against the cached main context to detect
-// subagent context switches, with haiku as a reliable fallback heuristic.
+// We use haiku model detection and missing session_id as heuristics.
+// NOTE: We no longer compare session_ids across a global cache, because that
+// caused cross-pollution between independent Claude Code instances (e.g. one
+// in Prism, one in a regular terminal) — each would see the other as a
+// "subagent" and display the other session's stale token data.
 export function isSubagentContext(stdin) {
     const model = (stdin.model?.display_name ?? stdin.model?.id ?? '').toLowerCase();
     // Haiku is always a subagent
     if (model.includes('haiku'))
         return true;
-    // If we have a cached main context with a session_id, and the current
-    // session_id differs, this is likely a subagent using a different model
+    // If we have a cached main context for THIS session and the session_ids
+    // differ, this is a subagent within the same parent session
     if (stdin.session_id) {
         const cached = getCachedMainContext();
         if (cached?.session_id && cached.session_id !== stdin.session_id) {
@@ -46,25 +76,29 @@ export function isSubagentContext(stdin) {
     }
     return false;
 }
-// Cache main session context for use when subagent is active
+// Cache main session context for use when subagent is active.
+// Cache is scoped per session_id so independent Claude Code instances
+// don't overwrite each other's data.
 export function cacheMainContext(stdin) {
     try {
+        ensureCacheDir();
         const data = {
             timestamp: Date.now(),
             stdin,
         };
-        fs.writeFileSync(CACHE_FILE, JSON.stringify(data), 'utf8');
+        fs.writeFileSync(getCacheFile(), JSON.stringify(data), 'utf8');
     }
     catch {
         // Ignore cache write errors
     }
 }
-// Get cached main session context
+// Get cached main session context (scoped to current session)
 export function getCachedMainContext() {
     try {
-        if (!fs.existsSync(CACHE_FILE))
+        const cacheFile = getCacheFile();
+        if (!fs.existsSync(cacheFile))
             return null;
-        const raw = fs.readFileSync(CACHE_FILE, 'utf8');
+        const raw = fs.readFileSync(cacheFile, 'utf8');
         const data = JSON.parse(raw);
         // Check if cache is too old
         if (Date.now() - data.timestamp > CACHE_MAX_AGE_MS) {
