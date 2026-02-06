@@ -98,10 +98,9 @@ export function getContextStats(stdin: StdinData): {
   // Use current_usage which reflects actual context window fill.
   // total_*_tokens are cumulative across the session (grow past the window after compaction)
   // and are useless for showing how full the context currently is.
-  // Note: cache_creation_input_tokens is already counted within input_tokens,
-  // but cache_read_input_tokens is separate and must be added.
+  // input_tokens already includes both cache_creation and cache_read tokens
   const usage = cw?.current_usage;
-  const inputTokens = (usage?.input_tokens ?? 0) + (usage?.cache_read_input_tokens ?? 0);
+  const inputTokens = usage?.input_tokens ?? 0;
   const outputTokens = usage?.output_tokens ?? 0;
   const tokens = inputTokens + outputTokens;
 

@@ -34,26 +34,26 @@ describe('getContextStats', () => {
         assert.equal(stats.percent, 8);
         assert.equal(stats.remaining, 92);
     });
-    it('includes cache_read_input_tokens in total', () => {
+    it('does not double-count cache_read_input_tokens (already in input_tokens)', () => {
         const stdin = {
             context_window: {
                 context_window_size: 200000,
                 current_usage: {
-                    input_tokens: 10000,
+                    input_tokens: 10000, // already includes 3000 cache_read
                     output_tokens: 5000,
                     cache_read_input_tokens: 3000,
                 },
             },
         };
         const stats = getContextStats(stdin);
-        assert.equal(stats.tokens, 18000);
+        assert.equal(stats.tokens, 15000); // 10000 + 5000, NOT 18000
     });
-    it('does NOT include cache_creation_input_tokens (already in input_tokens)', () => {
+    it('does not double-count cache_creation_input_tokens (already in input_tokens)', () => {
         const stdin = {
             context_window: {
                 context_window_size: 200000,
                 current_usage: {
-                    input_tokens: 10000,
+                    input_tokens: 10000, // already includes 2000 cache_creation
                     output_tokens: 5000,
                     cache_creation_input_tokens: 2000,
                 },
@@ -62,12 +62,12 @@ describe('getContextStats', () => {
         const stats = getContextStats(stdin);
         assert.equal(stats.tokens, 15000);
     });
-    it('handles all token types correctly', () => {
+    it('handles all token types correctly without double-counting', () => {
         const stdin = {
             context_window: {
                 context_window_size: 200000,
                 current_usage: {
-                    input_tokens: 45000,
+                    input_tokens: 45000, // already includes cache_read and cache_creation
                     output_tokens: 5000,
                     cache_creation_input_tokens: 1000,
                     cache_read_input_tokens: 2000,
@@ -75,9 +75,9 @@ describe('getContextStats', () => {
             },
         };
         const stats = getContextStats(stdin);
-        assert.equal(stats.tokens, 52000);
-        assert.equal(stats.percent, 26);
-        assert.equal(stats.remaining, 74);
+        assert.equal(stats.tokens, 50000); // 45000 + 5000
+        assert.equal(stats.percent, 25);
+        assert.equal(stats.remaining, 75);
     });
     it('defaults to 200000 when no context_window_size', () => {
         const stdin = {

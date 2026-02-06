@@ -37,7 +37,7 @@ export function renderSessionLine(ctx) {
     // Context bar with token counts (uses main session context even during subagent)
     const stats = getContextStats(ctx.contextStdin);
     const usage = ctx.contextStdin.context_window?.current_usage;
-    const inTok = (usage?.input_tokens ?? 0) + (usage?.cache_read_input_tokens ?? 0);
+    const inTok = usage?.input_tokens ?? 0;
     const outTok = usage?.output_tokens ?? 0;
     const tokStr = `${formatK(inTok)}↓${formatK(outTok)}↑`;
     const cacheIndicator = ctx.usingCachedContext ? magenta('<') : '';
@@ -81,9 +81,10 @@ export function renderInfoLine(ctx) {
         parts.push(dim(`api ${apiPct}%`));
     }
     // Cache efficiency: what fraction of input tokens came from cache
+    // input_tokens already includes cache_read_input_tokens, so no need to add them
     const usage = cw?.current_usage;
     const cacheRead = usage?.cache_read_input_tokens ?? 0;
-    const totalInput = (usage?.input_tokens ?? 0) + cacheRead;
+    const totalInput = usage?.input_tokens ?? 0;
     if (cacheRead > 0 && totalInput > 0) {
         const cachePct = Math.round((cacheRead / totalInput) * 100);
         parts.push(blue(`cache ${cachePct}%`));
