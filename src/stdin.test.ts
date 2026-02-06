@@ -40,42 +40,44 @@ describe('getContextStats', () => {
     assert.equal(stats.remaining, 92);
   });
 
-  it('does not double-count cache_read_input_tokens (already in input_tokens)', () => {
+  it('adds cache_read_input_tokens to total (separate from input_tokens)', () => {
     const stdin: StdinData = {
       context_window: {
         context_window_size: 200000,
         current_usage: {
-          input_tokens: 10000, // already includes 3000 cache_read
+          input_tokens: 10000,
           output_tokens: 5000,
           cache_read_input_tokens: 3000,
         },
       },
     };
     const stats = getContextStats(stdin);
-    assert.equal(stats.tokens, 15000); // 10000 + 5000, NOT 18000
+    // input (10K) + cache_read (3K) + output (5K) = 18K
+    assert.equal(stats.tokens, 18000);
   });
 
-  it('does not double-count cache_creation_input_tokens (already in input_tokens)', () => {
+  it('adds cache_creation_input_tokens to total (separate from input_tokens)', () => {
     const stdin: StdinData = {
       context_window: {
         context_window_size: 200000,
         current_usage: {
-          input_tokens: 10000, // already includes 2000 cache_creation
+          input_tokens: 10000,
           output_tokens: 5000,
           cache_creation_input_tokens: 2000,
         },
       },
     };
     const stats = getContextStats(stdin);
-    assert.equal(stats.tokens, 15000);
+    // input (10K) + cache_create (2K) + output (5K) = 17K
+    assert.equal(stats.tokens, 17000);
   });
 
-  it('handles all token types correctly without double-counting', () => {
+  it('handles all token types correctly (all three are separate)', () => {
     const stdin: StdinData = {
       context_window: {
         context_window_size: 200000,
         current_usage: {
-          input_tokens: 45000, // already includes cache_read and cache_creation
+          input_tokens: 45000,
           output_tokens: 5000,
           cache_creation_input_tokens: 1000,
           cache_read_input_tokens: 2000,
@@ -83,9 +85,10 @@ describe('getContextStats', () => {
       },
     };
     const stats = getContextStats(stdin);
-    assert.equal(stats.tokens, 50000); // 45000 + 5000
-    assert.equal(stats.percent, 25);
-    assert.equal(stats.remaining, 75);
+    // input (45K) + cache_create (1K) + cache_read (2K) + output (5K) = 53K
+    assert.equal(stats.tokens, 53000);
+    assert.equal(stats.percent, 27);
+    assert.equal(stats.remaining, 73);
   });
 
   it('defaults to 200000 when no context_window_size', () => {

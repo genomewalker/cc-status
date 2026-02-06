@@ -41,7 +41,9 @@ export function renderSessionLine(ctx: RenderContext): string {
   // Context bar with token counts (uses main session context even during subagent)
   const stats = getContextStats(ctx.contextStdin);
   const usage = ctx.contextStdin.context_window?.current_usage;
-  const inTok = usage?.input_tokens ?? 0;
+  const inTok = (usage?.input_tokens ?? 0)
+    + (usage?.cache_creation_input_tokens ?? 0)
+    + (usage?.cache_read_input_tokens ?? 0);
   const outTok = usage?.output_tokens ?? 0;
   const tokStr = `${formatK(inTok)}↓${formatK(outTok)}↑`;
   const cacheIndicator = ctx.usingCachedContext ? magenta('<') : '';
@@ -87,20 +89,21 @@ export function renderInfoLine(ctx: RenderContext): string | null {
     }
   }
 
-  // API time ratio: how much of wall time is spent in API calls
-  const apiMs = ctx.stdin.cost?.total_api_duration_ms;
-  if (apiMs != null && sessionMs > 0) {
-    const apiPct = Math.round((apiMs / sessionMs) * 100);
-    parts.push(dim(`api ${apiPct}%`));
+  // Wait ratio: how much of wall time is spent waiting for API calls
+  const waitMs = ctx.stdin.cost?.total_api_duration_ms;
+  if (waitMs != null && sessionMs > 0) {
+    const waitPct = Math.round((waitMs / sessionMs) * 100);
+    parts.push(dim(`wait ${waitPct}%`));
   }
 
-  // Cache efficiency: what fraction of input tokens came from cache
-  // input_tokens already includes cache_read_input_tokens, so no need to add them
+  // Cache efficiency: what fraction of all input tokens came from cache
+  // Per Anthropic API, input_tokens, cache_read, and cache_creation are separate.
+  // cache_creation tokens are fresh input (not hits), so include in denominator.
   const usage = cw?.current_usage;
   const cacheRead = usage?.cache_read_input_tokens ?? 0;
-  const totalInput = usage?.input_tokens ?? 0;
-  if (cacheRead > 0 && totalInput > 0) {
-    const cachePct = Math.round((cacheRead / totalInput) * 100);
+  const allInput = (usage?.input_tokens ?? 0) + cacheRead + (usage?.cache_creation_input_tokens ?? 0);
+  if (cacheRead > 0 && allInput > 0) {
+    const cachePct = Math.round((cacheRead / allInput) * 100);
     parts.push(blue(`cache ${cachePct}%`));
   }
 

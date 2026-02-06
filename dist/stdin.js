@@ -82,9 +82,14 @@ export function getContextStats(stdin) {
     // Use current_usage which reflects actual context window fill.
     // total_*_tokens are cumulative across the session (grow past the window after compaction)
     // and are useless for showing how full the context currently is.
-    // input_tokens already includes both cache_creation and cache_read tokens
+    // Per Claude Code docs, input_tokens, cache_creation_input_tokens, and
+    // cache_read_input_tokens are separate non-overlapping counts.
+    // used_percentage = input_tokens + cache_creation + cache_read (no output).
+    // We add output_tokens for full context window fill.
     const usage = cw?.current_usage;
-    const inputTokens = usage?.input_tokens ?? 0;
+    const inputTokens = (usage?.input_tokens ?? 0)
+        + (usage?.cache_creation_input_tokens ?? 0)
+        + (usage?.cache_read_input_tokens ?? 0);
     const outputTokens = usage?.output_tokens ?? 0;
     const tokens = inputTokens + outputTokens;
     const percent = Math.min(100, Math.round((tokens / size) * 100));

@@ -11,7 +11,7 @@
 ## Features
 
 - **Context tracking**: Context bar with remaining % (includes output tokens)
-- **Cost & burn rate**: Live cost, $/hour rate, tokens/min, API time ratio
+- **Cost & burn rate**: Live cost, $/hour rate, tokens/min, API wait ratio
 - **Cache efficiency**: Cache read % to monitor prompt caching
 - **Git info**: repo:branch with diff stats (+added/-deleted)
 - **Session duration**: Time since session start
@@ -23,7 +23,7 @@
 
 ```
 cc-soul:main | [Opus 4.5] | 12m | +5/-2 | ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ 85% | 2 CLAUDE.md 3 MCPs
-$0.42 $5.04/h | 27K/m | api 28% | cache 4% | 3 MCPs
+$0.42 $5.04/h | 27K/m | wait 28% | cache 4% | 3 MCPs
 ◈ coh:100% τ:84% nodes:1399h
 ◐ Read: src/index.ts | ✓ Bash ×3 | ✓ Glob ×2
 ▸ Implement feature X (3/7)
@@ -32,7 +32,7 @@ $0.42 $5.04/h | 27K/m | api 28% | cache 4% | 3 MCPs
 ### Line Breakdown
 
 1. **Session**: repo:branch, model, duration, git diff, context bar, config counts
-2. **Cost**: cumulative cost, burn rate, tokens/min, API time %, cache %, MCP count
+2. **Cost**: cumulative cost, burn rate, tokens/min, wait %, cache %, MCP count
 3. **Soul**: coherence %, tau-k correlation, node distribution (hot/warm/cold)
 4. **Tools**: running and completed tool counts
 5. **Agents**: running agents with description and elapsed time

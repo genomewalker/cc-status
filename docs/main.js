@@ -48,7 +48,7 @@
       ' <span class="t-dim">|</span> ',
       '<span class="t-dim">27K/m</span>',
       ' <span class="t-dim">|</span> ',
-      '<span class="t-dim">api 28%</span>',
+      '<span class="t-dim">wait 28%</span>',
       ' <span class="t-dim">|</span> ',
       '<span class="t-teal">cache 4%</span>',
       ' <span class="t-dim">|</span> ',
