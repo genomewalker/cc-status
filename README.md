@@ -16,7 +16,7 @@
 - **Git info**: repo:branch with diff stats (+added/-deleted)
 - **Session duration**: Time since session start
 - **Config counts**: CLAUDE.md files, MCPs, hooks
-- **Soul status**: Coherence metrics, tau-k correlation, node counts (requires [cc-soul](https://github.com/genomewalker/cc-soul))
+- **Soul status**: Memory count, confidence, learning entries, code intelligence (requires [cc-soul](https://github.com/genomewalker/cc-soul) v3.31+)
 - **Live activity**: Running tools, agents, and todos from transcript
 
 ## Example Output
@@ -24,7 +24,7 @@
 ```
 cc-soul:main | [Opus 4.5] | 12m | +5/-2 | ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ 85% | 2 CLAUDE.md 3 MCPs
 $0.42 $5.04/h | 27K/m | wait 28% | cache 4% | 3 MCPs
-◈ coh:100% τ:84% nodes:1399h
+◈ v3.31.0 ✓ mem:1.2K 85% learn:45 code:89@3
 ◐ Read: src/index.ts | ✓ Bash ×3 | ✓ Glob ×2
 ▸ Implement feature X (3/7)
 ```
@@ -33,7 +33,7 @@ $0.42 $5.04/h | 27K/m | wait 28% | cache 4% | 3 MCPs
 
 1. **Session**: repo:branch, model, duration, git diff, context bar, config counts
 2. **Cost**: cumulative cost, burn rate, tokens/min, wait %, cache %, MCP count
-3. **Soul**: coherence %, tau-k correlation, node distribution (hot/warm/cold)
+3. **Soul**: version, status, memory count + confidence, learning entries, code symbols
 4. **Tools**: running and completed tool counts
 5. **Agents**: running agents with description and elapsed time
 6. **Todos**: current in-progress todo with completion count
@@ -67,7 +67,15 @@ This restores only the `statusLine` section from your backup (other settings are
 
 ## Soul Integration
 
-Requires [cc-soul](https://github.com/genomewalker/cc-soul) to be installed for soul metrics. Without it, the soul line stays quiet and everything else still works.
+Requires [cc-soul](https://github.com/genomewalker/cc-soul) v3.31+ for soul metrics. Without it, the soul line stays quiet and everything else still works.
+
+Soul line format: `◈ v3.31.0 ✓ mem:1.2K 85% learn:45 code:89@3`
+- **◈** - Soul indicator
+- **v3.31.0** - cc-soul version
+- **✓/✗** - Status (OK/ERROR)
+- **mem:1.2K 85%** - Total memories + average confidence
+- **learn:45** - Learning entries (preferences + corrections + insights + solutions)
+- **code:89@3** - Code symbols @ project count
 
 ## License
 

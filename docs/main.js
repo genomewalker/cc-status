@@ -56,11 +56,13 @@
     ].join('');
 
     var line3 = [
-      '<span class="t-magenta">*</span>',
-      ' <span class="t-dim">v3.30.1</span>',
-      ' <span class="t-dim">n:</span><span class="t-white">4</span>',
-      ' <span class="t-dim">t:</span><span class="t-white">71.0K</span>',
-      ' <span class="t-dim">c:</span><span class="t-green">95%</span>',
+      '<span class="t-magenta">◈</span>',
+      ' <span class="t-dim">v3.31.0</span>',
+      ' <span class="t-green">✓</span>',
+      ' <span class="t-dim">mem:</span><span class="t-white">1.2K</span>',
+      ' <span class="t-green">85%</span>',
+      ' <span class="t-dim">learn:</span><span class="t-cyan">45</span>',
+      ' <span class="t-dim">code:</span><span class="t-white">89</span><span class="t-dim">@3</span>',
     ].join('');
 
     status.innerHTML = line1 + '\n' + line2 + '\n' + line3;
