@@ -20,9 +20,34 @@ function getMindPath(): string {
   return process.env.CHITTA_DB_PATH || path.join(os.homedir(), '.claude/mind');
 }
 
+// Get socket directory (matches C++ daemon logic: XDG_RUNTIME_DIR > ~/.cache/chitta > /tmp)
+function getSocketDir(): string {
+  const xdgRuntime = process.env.XDG_RUNTIME_DIR;
+  if (xdgRuntime && fs.existsSync(xdgRuntime)) {
+    const dir = path.join(xdgRuntime, 'chitta');
+    if (!fs.existsSync(dir)) {
+      try { fs.mkdirSync(dir, { mode: 0o700 }); } catch {}
+    }
+    return dir;
+  }
+  const home = os.homedir();
+  if (home) {
+    const cacheDir = path.join(home, '.cache');
+    if (!fs.existsSync(cacheDir)) {
+      try { fs.mkdirSync(cacheDir, { mode: 0o755 }); } catch {}
+    }
+    const dir = path.join(cacheDir, 'chitta');
+    if (!fs.existsSync(dir)) {
+      try { fs.mkdirSync(dir, { mode: 0o700 }); } catch {}
+    }
+    return dir;
+  }
+  return '/tmp';
+}
+
 // Derive socket path from mind path (same as cc-soul)
 function socketPathForMind(mindPath: string): string {
-  return `/tmp/chitta-${djb2Hash(mindPath)}.sock`;
+  return path.join(getSocketDir(), `chitta-${djb2Hash(mindPath)}.sock`);
 }
 
 // Find socket path for current mind
