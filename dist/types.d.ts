@@ -67,30 +67,24 @@ export interface GitInfo {
     deleted: number;
 }
 export interface SoulContext {
-    version: string;
-    partnership: {
-        preferences: number;
-        corrections: number;
-        insights: number;
-        solutions: number;
+    total_memories: number;
+    wisdom_nodes: number;
+    beliefs: number;
+    episodes: number;
+    corrections: number;
+    preferences: number;
+    avg_confidence: number;
+    count_by_kind: {
+        belief?: number;
+        episode?: number;
+        habit?: number;
+        milestone?: number;
+        symbol?: number;
+        unknown?: number;
+        wisdom?: number;
+        [key: string]: number | undefined;
     };
-    memory: {
-        wisdom: number;
-        beliefs: number;
-        episodes: number;
-        total: number;
-        avg_confidence: number;
-    };
-    code: {
-        symbols: number;
-        triplets: number;
-        projects: Array<{
-            name: string;
-            files: number;
-        }>;
-    };
-    yantra_ready: boolean;
-    status: 'OK' | 'ERROR';
+    version?: string;
 }
 export interface RenderContext {
     stdin: StdinData;

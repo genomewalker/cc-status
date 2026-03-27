@@ -62,15 +62,9 @@ function findSocketPath(): string | null {
   return null;
 }
 
-// Fast path: query daemon via Unix socket (JSON-RPC protocol)
-function getSoulContextFromSocket(): Promise<SoulContext | undefined> {
+// Query daemon via Unix socket (JSON-RPC protocol)
+function socketCall(socketPath: string, method: string): Promise<unknown> {
   return new Promise((resolve) => {
-    const socketPath = findSocketPath();
-    if (!socketPath) {
-      resolve(undefined);
-      return;
-    }
-
     const client = net.createConnection(socketPath);
     let data = '';
     let resolved = false;
@@ -86,32 +80,25 @@ function getSoulContextFromSocket(): Promise<SoulContext | undefined> {
     const timeout = setTimeout(cleanup, SOCKET_TIMEOUT);
 
     client.on('connect', () => {
-      // JSON-RPC request for soul_context tool
       const request = JSON.stringify({
         jsonrpc: '2.0',
         id: 1,
         method: 'tools/call',
-        params: { name: 'soul_context', arguments: {} }
+        params: { name: method, arguments: {} }
       });
       client.write(request + '\n');
     });
 
     client.on('data', (chunk) => {
       data += chunk.toString();
-      // Wait for a complete line, then try to parse
       const nlIdx = data.indexOf('\n');
       if (nlIdx !== -1) {
         clearTimeout(timeout);
         resolved = true;
         client.destroy();
         try {
-          // Parse only the first complete line (up to the newline)
           const response = JSON.parse(data.slice(0, nlIdx).trim());
-          if (response.result?.structured) {
-            resolve(response.result.structured as SoulContext);
-          } else {
-            resolve(undefined);
-          }
+          resolve(response.result?.structured ?? undefined);
         } catch {
           resolve(undefined);
         }
@@ -124,7 +111,23 @@ function getSoulContextFromSocket(): Promise<SoulContext | undefined> {
 }
 
 export async function getSoulContextAsync(): Promise<SoulContext | undefined> {
-  return getSoulContextFromSocket();
+  const socketPath = findSocketPath();
+  if (!socketPath) return undefined;
+
+  const [ctx, ver] = await Promise.all([
+    socketCall(socketPath, 'soul_context'),
+    socketCall(socketPath, 'version_check'),
+  ]);
+
+  if (!ctx) return undefined;
+
+  const soul = ctx as SoulContext;
+  const versionInfo = ver as { version?: string } | undefined;
+  if (versionInfo?.version) {
+    soul.version = versionInfo.version;
+  }
+
+  return soul;
 }
 
 // Sync wrapper - daemon only, no CLI fallback
