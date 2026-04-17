@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as net from 'net';
 import type { SoulContext } from './types.js';
 
-const SOCKET_TIMEOUT = 500; // ms - fast timeout for statusline
+const SOCKET_TIMEOUT = 1500; // ms - timeout for statusline socket query
 
 // DJB2 hash - must match cc-soul's implementation
 function djb2Hash(str: string): number {
@@ -22,7 +22,7 @@ function getMindPath(): string {
 
 // Get socket directory (matches C++ daemon logic: XDG_RUNTIME_DIR > ~/.cache/chitta > /tmp)
 function getSocketDir(): string {
-  const xdgRuntime = process.env.XDG_RUNTIME_DIR;
+  const xdgRuntime = process.env.XDG_RUNTIME_DIR || (process.getuid ? `/run/user/${process.getuid()}` : undefined);
   if (xdgRuntime && fs.existsSync(xdgRuntime)) {
     const dir = path.join(xdgRuntime, 'chitta');
     if (!fs.existsSync(dir)) {
