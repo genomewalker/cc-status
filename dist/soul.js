@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
 import * as net from 'net';
-const SOCKET_TIMEOUT = 1500; // ms - timeout for statusline socket query
+const SOCKET_TIMEOUT = 5000; // ms - soul_context runs spectral compute (can take several seconds on large minds)
 // DJB2 hash - must match cc-soul's implementation
 function djb2Hash(str) {
     let hash = 5381;
@@ -108,18 +108,10 @@ export async function getSoulContextAsync() {
     const socketPath = findSocketPath();
     if (!socketPath)
         return undefined;
-    const [ctx, ver] = await Promise.all([
-        socketCall(socketPath, 'soul_context'),
-        socketCall(socketPath, 'version_check'),
-    ]);
+    const ctx = await socketCall(socketPath, 'soul_context');
     if (!ctx)
         return undefined;
-    const soul = ctx;
-    const versionInfo = ver;
-    if (versionInfo?.version) {
-        soul.version = versionInfo.version;
-    }
-    return soul;
+    return ctx;
 }
 // Sync wrapper - daemon only, no CLI fallback
 export function getSoulContext() {
