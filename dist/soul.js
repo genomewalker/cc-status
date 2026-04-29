@@ -108,10 +108,24 @@ export async function getSoulContextAsync() {
     const socketPath = findSocketPath();
     if (!socketPath)
         return undefined;
-    const ctx = await socketCall(socketPath, 'soul_context');
-    if (!ctx)
+    // health_check reuses the same memory_stats/spectral caches as soul_context
+    // but skips the uncached recall_by_kind() scans, so it returns in <60ms even
+    // on cold caches vs. 5–15s for soul_context on large minds.
+    const hc = (await socketCall(socketPath, 'health_check'));
+    if (!hc)
         return undefined;
-    return ctx;
+    const cbk = hc.count_by_kind ?? {};
+    return {
+        total_memories: hc.memory_count ?? 0,
+        wisdom_nodes: cbk.wisdom ?? 0,
+        beliefs: cbk.belief ?? 0,
+        episodes: cbk.episode ?? 0,
+        corrections: cbk.correction ?? 0,
+        preferences: cbk.preference ?? 0,
+        avg_confidence: hc.avg_confidence ?? 0,
+        count_by_kind: cbk,
+        version: hc.software_version,
+    };
 }
 // Sync wrapper - daemon only, no CLI fallback
 export function getSoulContext() {
