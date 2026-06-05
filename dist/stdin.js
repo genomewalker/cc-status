@@ -110,9 +110,22 @@ export function getCachedMainContext() {
         return null;
     }
 }
+// Claude 4.x and 3.7 support 1M context in Claude Code unless opted out.
+// Falls back to 200K for all older models.
+function detectContextWindowSize(modelId) {
+    if (!modelId)
+        return 200_000;
+    const id = modelId.toLowerCase();
+    const is4x = /claude-(opus|sonnet|haiku)-4/.test(id);
+    const is37 = /claude-3-7/.test(id);
+    if ((is4x || is37) && process.env.CLAUDE_CODE_DISABLE_1M_CONTEXT !== '1') {
+        return 1_000_000;
+    }
+    return 200_000;
+}
 export function getContextStats(stdin) {
     const cw = stdin.context_window;
-    const size = cw?.context_window_size ?? 200000;
+    const size = cw?.context_window_size ?? detectContextWindowSize(stdin.model?.id);
     // Use current_usage which reflects actual context window fill.
     // total_*_tokens are cumulative across the session (grow past the window after compaction)
     // and are useless for showing how full the context currently is.

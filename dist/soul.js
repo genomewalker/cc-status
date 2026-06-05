@@ -124,6 +124,7 @@ export async function getSoulContextAsync() {
         preferences: cbk.preference ?? 0,
         avg_confidence: hc.avg_confidence ?? 0,
         count_by_kind: cbk,
+        pending_count: hc.pending_count ?? 0,
         version: hc.software_version,
     };
 }

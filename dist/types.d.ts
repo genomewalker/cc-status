@@ -74,6 +74,7 @@ export interface SoulContext {
     corrections: number;
     preferences: number;
     avg_confidence: number;
+    pending_count: number;
     count_by_kind: {
         belief?: number;
         episode?: number;

@@ -115,6 +115,7 @@ interface HealthCheck {
   symbol_count?: number;
   avg_confidence?: number;
   count_by_kind?: Record<string, number>;
+  pending_count?: number;
   software_version?: string;
 }
 
@@ -136,8 +137,9 @@ export async function getSoulContextAsync(): Promise<SoulContext | undefined> {
     episodes:       cbk.episode   ?? 0,
     corrections:    cbk.correction ?? 0,
     preferences:    cbk.preference ?? 0,
-    avg_confidence: hc.avg_confidence ?? 0,
-    count_by_kind:  cbk,
+    avg_confidence:  hc.avg_confidence ?? 0,
+    count_by_kind:   cbk,
+    pending_count:   hc.pending_count ?? 0,
     version:        hc.software_version,
   };
 }

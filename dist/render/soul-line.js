@@ -23,8 +23,15 @@ export function renderSoulLine(ctx) {
     if (soul.version) {
         parts.push(dim(`v${soul.version}`));
     }
-    // Memory stats: total with confidence
-    parts.push(`${dim('mem:')}${white(formatWithUnits(soul.total_memories))} ${confidenceColor(soul.avg_confidence)}`);
+    // Memory stats: total with confidence (omit when unavailable — fast-path health_check omits avg_confidence)
+    const memStr = soul.avg_confidence > 0
+        ? `${dim('mem:')}${white(formatWithUnits(soul.total_memories))} ${confidenceColor(soul.avg_confidence)}`
+        : `${dim('mem:')}${white(formatWithUnits(soul.total_memories))}`;
+    parts.push(memStr);
+    // Pending embeddings — non-zero means recall quality degraded for new memories
+    if (soul.pending_count > 0) {
+        parts.push(`${dim('pending:')}${yellow(formatWithUnits(soul.pending_count))}`);
+    }
     // Habits (learned behaviors)
     const habits = soul.count_by_kind.habit ?? 0;
     if (habits > 0) {
