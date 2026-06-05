@@ -111,12 +111,15 @@ export function getCachedMainContext() {
     }
 }
 // Claude 4.x and 3.7 support 1M context in Claude Code unless opted out.
+// Opus 4.x always uses 1M regardless of CLAUDE_CODE_DISABLE_1M_CONTEXT.
 // Falls back to 200K for all older models.
 function detectContextWindowSize(modelId) {
     if (!modelId)
         return 200_000;
     const id = modelId.toLowerCase();
-    const is4x = /claude-(opus|sonnet|haiku)-4/.test(id);
+    if (/claude-opus-4/.test(id))
+        return 1_000_000;
+    const is4x = /claude-(sonnet|haiku)-4/.test(id);
     const is37 = /claude-3-7/.test(id);
     if ((is4x || is37) && process.env.CLAUDE_CODE_DISABLE_1M_CONTEXT !== '1') {
         return 1_000_000;
