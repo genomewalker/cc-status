@@ -33,12 +33,12 @@ export function renderSoulLine(ctx) {
         parts.push(`${dim('pending:')}${yellow(formatWithUnits(soul.pending_count))}`);
     }
     // Habits (learned behaviors)
-    const habits = soul.count_by_kind.habit ?? 0;
+    const habits = soul.count_by_kind?.habit ?? 0;
     if (habits > 0) {
         parts.push(`${dim('habits:')}${cyan(formatWithUnits(habits))}`);
     }
     // Code symbols
-    const symbols = soul.count_by_kind.symbol ?? 0;
+    const symbols = soul.count_by_kind?.symbol ?? 0;
     if (symbols > 0) {
         parts.push(`${dim('sym:')}${white(formatWithUnits(symbols))}`);
     }
