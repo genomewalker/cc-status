@@ -35,13 +35,14 @@ export interface StdinData {
 export interface ToolEntry {
     name: string;
     target?: string;
-    status: 'running' | 'completed' | 'error';
+    /** 'interrupted': the turn ended without a tool_result (interrupt, crash, restore). */
+    status: 'running' | 'completed' | 'error' | 'interrupted';
 }
 export interface AgentEntry {
     type: string;
     description?: string;
     model?: string;
-    status: 'running' | 'completed';
+    status: 'running' | 'completed' | 'interrupted';
     startTime: Date;
     endTime?: Date;
 }

@@ -54,8 +54,48 @@ export async function parseTranscript(transcriptPath: string): Promise<Transcrip
   return result;
 }
 
+type TranscriptEntry = {
+  type?: string;
+  timestamp?: string;
+  isMeta?: boolean;
+  isSidechain?: boolean;
+  isCompactSummary?: boolean;
+  message?: { content?: unknown; stop_reason?: string | null };
+};
+
+/**
+ * True when this entry closes the main thread's turn: a new user prompt (not a
+ * tool result, not meta or sidechain), or an assistant message that ended the
+ * turn. A tool or agent without a tool_result by then will never get one; it
+ * was interrupted (Esc, crash, killed process, restored conversation).
+ */
+export function endsTurn(entry: TranscriptEntry): boolean {
+  if (entry.isSidechain || entry.isMeta || entry.isCompactSummary) return false;
+  const content = entry.message?.content;
+  if (entry.type === 'assistant') return entry.message?.stop_reason === 'end_turn';
+  if (entry.type !== 'user') return false;
+  if (typeof content === 'string') return content.trim().length > 0;
+  if (!Array.isArray(content)) return false;
+  const blocks = content as Record<string, unknown>[];
+  return !blocks.some(b => b?.type === 'tool_result') &&
+    blocks.some(b => b?.type === 'text' && typeof b.text === 'string' && b.text.trim().length > 0);
+}
+
+function closeOpenWork(
+  toolMap: Map<string, ToolMapEntry>,
+  agentMap: Map<string, AgentMapEntry>,
+  timestamp: Date
+): void {
+  for (const tool of toolMap.values()) {
+    if (tool.status === 'running') { tool.status = 'interrupted'; tool.endTime = timestamp; }
+  }
+  for (const agent of agentMap.values()) {
+    if (agent.status === 'running') { agent.status = 'interrupted'; agent.endTime = timestamp; }
+  }
+}
+
 function processEntry(
-  entry: { timestamp?: string; message?: { content?: unknown[] } },
+  entry: TranscriptEntry,
   toolMap: Map<string, ToolMapEntry>,
   agentMap: Map<string, AgentMapEntry>,
   latestTodos: TodoEntry[],
@@ -66,6 +106,9 @@ function processEntry(
   if (!result.sessionStart && entry.timestamp) {
     result.sessionStart = timestamp;
   }
+
+  // A new prompt closes the previous turn before its own blocks are read.
+  if (entry.type === 'user' && endsTurn(entry)) closeOpenWork(toolMap, agentMap, timestamp);
 
   const content = entry.message?.content;
   if (!content || !Array.isArray(content)) return;
@@ -116,6 +159,9 @@ function processEntry(
       }
     }
   }
+
+  // The assistant's final message: anything still open was not answered.
+  if (entry.type === 'assistant' && endsTurn(entry)) closeOpenWork(toolMap, agentMap, timestamp);
 }
 
 function extractTarget(toolName: string, input?: Record<string, unknown>): string | undefined {

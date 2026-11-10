@@ -18,7 +18,8 @@ export function renderToolsLine(ctx: RenderContext): string | null {
   const parts: string[] = [];
 
   const runningTools = tools.filter(t => t.status === 'running');
-  const completedTools = tools.filter(t => t.status === 'completed' || t.status === 'error');
+  // Interrupted tools ran and ended without a result; they count, never as running.
+  const completedTools = tools.filter(t => t.status !== 'running');
 
   // Show last 2 running tools
   for (const tool of runningTools.slice(-2)) {

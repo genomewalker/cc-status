@@ -15,7 +15,8 @@ export function renderToolsLine(ctx) {
         return null;
     const parts = [];
     const runningTools = tools.filter(t => t.status === 'running');
-    const completedTools = tools.filter(t => t.status === 'completed' || t.status === 'error');
+    // Interrupted tools ran and ended without a result; they count, never as running.
+    const completedTools = tools.filter(t => t.status !== 'running');
     // Show last 2 running tools
     for (const tool of runningTools.slice(-2)) {
         const target = tool.target ? truncatePath(tool.target) : '';
