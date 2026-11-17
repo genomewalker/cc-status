@@ -104,6 +104,11 @@ function socketCall(socketPath, method) {
         client.on('close', cleanup);
     });
 }
+// pending_count also counts memories the embedder skips on purpose (awaiting
+// review, inactive); daemons that split it report the real backlog separately.
+export function pendingEmbedCount(hc) {
+    return hc.pending_embed_admissible ?? hc.pending_count ?? 0;
+}
 export async function getSoulContextAsync() {
     const socketPath = findSocketPath();
     if (!socketPath)
@@ -124,7 +129,7 @@ export async function getSoulContextAsync() {
         preferences: cbk.preference ?? 0,
         avg_confidence: hc.avg_confidence ?? 0,
         count_by_kind: cbk,
-        pending_count: hc.pending_count ?? 0,
+        pending_count: pendingEmbedCount(hc),
         version: hc.software_version,
     };
 }
